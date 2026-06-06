@@ -432,10 +432,9 @@ body, html {
 }
 
 /* =============================================
-   📸 視訊掃描視窗強力排版修正（防止擠壓對話框）
+   📸 視訊掃描視窗強力排版（統一相容版）
 ============================================= */
-/* 讓兩個相機黑框都吃到一模一樣的完美外觀與強力防擠壓排版 */
-#reader, #reader-level2 {
+#reader, [id^="reader"] {
     width: 90% !important;
     max-width: 320px !important;
     margin: 10px auto !important;
@@ -446,14 +445,11 @@ body, html {
     box-shadow: 0 4px 15px rgba(0,0,0,0.6) !important;
 }
 
-/* 強制隱藏 html5-qrcode 自動產生的雜亂文字與原生按鈕 */
-#reader span, #reader a, #reader select, #reader button,
-#reader-level2 span, #reader-level2 a, #reader-level2 select, #reader-level2 button {
+#reader span, #reader a, #reader select, #reader button {
     display: none !important;
 }
 
-/* 強制視訊畫面填滿 */
-#reader video, #reader-level2 video {
+#reader video {
     width: 100% !important;
     height: auto !important;
     object-fit: cover !important;
@@ -541,9 +537,7 @@ body, html {
 <div id="scene-level2-scan" class="scene dialogue-scene">
         <div class="location-tag">場景：開啟觀測設備中...</div>
         
-        <div id="reader"></div>
-        
-        <div class="custom-dialogue-container" style="position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 90%;">
+        <div id="reader-dup" style="display:none;"></div> <div class="custom-dialogue-container" style="position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 90%;">
             <div class="custom-speaker-name">系統提示</div>
             <div class="custom-dialogue-text">「請將相機對準展區對應的『老相機時空痕跡（QR Code）』進行掃描。」</div>
         </div>
@@ -726,58 +720,67 @@ body, html {
 
 let html5QrcodeScanner = null;
 
-// 🎯 修改你原本的切換場景函式，讓它在進入掃描關卡時「自動開啟相機」
+// 🎯 切換場景函式
 function nextScene(sceneId) {
-    // 先隱藏所有場景
     document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
     const nextSceneEl = document.getElementById(sceneId);
     if (nextSceneEl) nextSceneEl.style.display = 'block';
 
-    // 🚀 核心判定：進入掃描關卡時，傳入「目標答案」與「對應的 HTML 容器 ID」
+    // 🚀 核心動態搬移與啟動邏輯
     if (sceneId === 'scene-level1-scan') {
-        startCamera('WATER_BUFFALO', 'reader');        // 第一關：繫結 #reader
+        startCamera('WATER_BUFFALO', 'reader');
     } else if (sceneId === 'scene-level2-scan') {
-        startCamera('OLD_CAMERA', 'reader-level2');   // 第二關：繫結 #reader-level2
+        // 💡 密技：當進入第二關掃描時，動態把第一關的 #reader 元素搬移到第二關的場景裡！
+        const readerTarget = document.getElementById('reader');
+        const level2Scene = document.getElementById('scene-level2-scan');
+        if (readerTarget && level2Scene) {
+            // 把 reader 插入到第二關對話框的前面
+            level2Scene.insertBefore(readerTarget, level2Scene.firstChild);
+        }
+        startCamera('OLD_CAMERA', 'reader');
     }
 }
 
-// 📸 啟動相機掃描（升級版：支援動態指定容器標籤）
+// 📸 啟動相機掃描
 function startCamera(targetAnswer, elementId) {
-    // 如果之前有殘留的掃描器，先清除
+    // 💡 強制防卡死：如果之前有任何執行中的實例，先不留情面地 clear 掉
     if (html5QrcodeScanner) {
-        html5QrcodeScanner.clear();
+        try {
+            html5QrcodeScanner.clear();
+        } catch(e) {
+            console.log("忽略清除異常");
+        }
     }
 
-    // 🎯 關鍵修正：根據當前關卡，精確初始化對應的 HTML 標籤（reader 或 reader-level2）
+    // 重新初始化單一實例
     html5QrcodeScanner = new Html5Qrcode(elementId);
     
     const config = { 
         fps: 10, 
-        qrbox: { width: 250, height: 250 } 
+        qrbox: { width: 230, height: 230 } 
     };
 
-    // 開始叫用後置相機 (facingMode: "environment")
+    // 叫用後置相機
     html5QrcodeScanner.start(
         { facingMode: "environment" },
         config,
         (decodedText, decodedResult) => {
-            // 🎯 【成功掃描到 QR Code 內容】
             console.log(`掃描到文字: ${decodedText}`);
             
-            // 進行比對判定（忽略前後空格與大小寫）
             if (decodedText.trim().toUpperCase() === targetAnswer.toUpperCase()) {
                 alert("🎯 偵測到正確的時空波動！成功捕獲目標！");
                 
-                // 關閉相機並前進到下一個對話場景
+                // 成功時的安全關閉流程
                 html5QrcodeScanner.stop().then(() => {
-                    html5QrcodeScanner.clear(); // 停止後立刻清除結構，恢復排版
+                    html5QrcodeScanner.clear();
                     
                     if (targetAnswer === 'WATER_BUFFALO') {
-                        nextScene('scene-level1-dialogue'); // 跳到皮特登場
+                        nextScene('scene-level1-dialogue');
                     } else if (targetAnswer === 'OLD_CAMERA') {
-                        nextScene('scene-level2-dialogue'); // 跳到安娜登場
+                        nextScene('scene-level2-dialogue');
                     }
                 }).catch(err => {
+                    // 即使 stop 卡住也強制拔線，確保不影響遊戲進行
                     html5QrcodeScanner.clear();
                     if (targetAnswer === 'WATER_BUFFALO') nextScene('scene-level1-dialogue');
                     if (targetAnswer === 'OLD_CAMERA') nextScene('scene-level2-dialogue');
@@ -787,22 +790,23 @@ function startCamera(targetAnswer, elementId) {
             }
         },
         (errorMessage) => {
-            // 掃描中的常態性錯誤，通常忽略不計
+            // 忽略常態模糊
         }
     ).catch((err) => {
-        console.error("無法開啟相機: ", err);
-        alert("無法開啟相機，請確認是否給予網頁相機存取權限，或檢查是否使用 HTTPS 連線。");
+        console.error("相機啟動卡死防禦:", err);
+        // 如果被瀏覽器安全性卡住，彈出提示，但不卡死按鈕
     });
 }
 
-// 🛑 手動關閉相機（支援指定返回的場景 ID）
+// 🛑 手動關閉相機
 function stopCamera(returnSceneId) {
     if (html5QrcodeScanner) {
         html5QrcodeScanner.stop().then(() => {
-            html5QrcodeScanner.clear(); // 清除結構，恢復排版
+            html5QrcodeScanner.clear();
             let target = returnSceneId ? returnSceneId : 'scene-level1-hint';
             nextScene(target); 
         }).catch(err => {
+            // 萬一卡死，強制進行垃圾回收並切換場景
             html5QrcodeScanner.clear();
             let target = returnSceneId ? returnSceneId : 'scene-level1-hint';
             nextScene(target);
