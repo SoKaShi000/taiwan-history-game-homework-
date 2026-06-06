@@ -502,17 +502,16 @@ body, html {
 <div id="scene-level1-scan" class="scene dialogue-scene">
         <div class="location-tag">場景：開啟觀測設備中...</div>
         
-        <div style="width: 100%; height: 260px; display: flex; justify-content: center; align-items: center; overflow: hidden; margin-top: 10px;">
-            <div id="reader"></div>
-        </div>
+        <div id="reader"></div>
         
-        <div class="custom-dialogue-container" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%;">
+        <div class="custom-dialogue-container" style="position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 90%;">
             <div class="custom-speaker-name">系統提示</div>
             <div class="custom-dialogue-text">「請將相機對準展區對應的『水牛時空痕跡（QR Code）』進行掃描。」</div>
-            
-            <button onclick="stopCamera()" style="margin-top: 8px; width: 100%; padding: 8px; background: #ff4d4d; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">🛑 關閉觀測設備</button>
         </div>
+
+        <button onclick="stopCamera('scene-level1-hint')" style="position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; padding: 10px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 30;">🛑 關閉觀測設備</button>
     </div>
+
     <!-- 6. 第一關：角色登場對話 -->
 <div id="scene-level1-dialogue" class="scene dialogue-scene" onclick="nextScene('scene-level2-hint')">
         <div class="location-tag">場景：水牛腳邊的草叢</div>
@@ -540,15 +539,17 @@ body, html {
     </div>
 
     <!-- 8. 第二關：掃描老相機 QRcode -->
-    <div id="scene-level2-scan" class="scene scan-scene">
-        <div class="scan-hint">提示：尋找能留下瞬間記憶的黑盒子<br>(掃描「老相機」處的 QR Code)</div>
-        <div class="scan-window" style="border-color: #9b59b6; box-shadow: 0 0 20px rgba(155, 89, 182, 0.5);">
-            <div class="scan-line" style="background: #9b59b6;"></div>
-            <div style="position:absolute; top:40%; left:40%; font-size:3rem;">📷</div>
+<div id="scene-level2-scan" class="scene dialogue-scene">
+        <div class="location-tag">場景：開啟觀測設備中...</div>
+        
+        <div id="reader-level2" style="display:none;"></div> <div class="custom-dialogue-container" style="position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 90%;">
+            <div class="custom-speaker-name">系統提示</div>
+            <div class="custom-dialogue-text">「請將相機對準展區對應的『老相機時空痕跡（QR Code）』進行掃描。」</div>
         </div>
-        <button class="btn" style="background-color: #9b59b6;" onclick="showReward(2)">【模擬掃描成功】</button>
-    </div>
 
+        <button onclick="stopCamera('scene-level2-hint')" style="position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; padding: 10px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 30;">🛑 關閉觀測設備</button>
+    </div>
+    
     <!-- 9. 第二關：情報員安娜登場 -->
 <div id="scene-level2-dialogue" class="scene dialogue-scene" onclick="nextScene('scene-level3-quiz')">
         <div class="location-tag">場景：「新秩序下」展區</div>
@@ -731,11 +732,11 @@ function nextScene(sceneId) {
     const nextSceneEl = document.getElementById(sceneId);
     if (nextSceneEl) nextSceneEl.style.display = 'block';
 
-    // 🚀 核心判定：如果進入了掃描關卡，就啟動相機
+// 🚀 核心判定：如果進入了掃描關卡，就啟動相機
     if (sceneId === 'scene-level1-scan') {
         startCamera('WATER_BUFFALO'); // 第一關目標：水牛
     } else if (sceneId === 'scene-level2-scan') {
-        startCamera('OLD_CAMERA');   // 第二關目標：老相機
+        startCamera('OLD_CAMERA');   // 第二關目標：老相機，會自動渲染到當前可見的 reader 中
     }
 }
 
@@ -788,13 +789,25 @@ function startCamera(targetAnswer) {
     });
 }
 
-// 🛑 手動關閉相機（用於取消或返回上一幕）
-function stopCamera() {
+// 🛑 手動關閉相機（升級版：支援指定返回的場景 ID）
+function stopCamera(returnSceneId) {
     if (html5QrcodeScanner) {
         html5QrcodeScanner.stop().then(() => {
-            // 返回到提示畫面，這裡根據實際狀況調整
-            nextScene('scene-level1-hint'); 
-        }).catch(err => console.log(err));
+            html5QrcodeScanner.clear(); // 清除結構，恢復排版
+            
+            // 如果有指定回傳的關卡就去那裡，沒有的話預設回第一關提示
+            let target = returnSceneId ? returnSceneId : 'scene-level1-hint';
+            nextScene(target); 
+        }).catch(err => {
+            console.log("關閉相機時發生微小錯誤，強制清除結構", err);
+            html5QrcodeScanner.clear();
+            let target = returnSceneId ? returnSceneId : 'scene-level1-hint';
+            nextScene(target);
+        });
+    } else {
+        // 如果相機根本沒啟動，直接切換場景
+        let target = returnSceneId ? returnSceneId : 'scene-level1-hint';
+        nextScene(target);
     }
 }
     // 重置遊戲
