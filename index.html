@@ -455,6 +455,39 @@ body, html {
     object-fit: cover !important;
     display: block !important;
 }
+/* =============================================
+   🧩 第三關謎題場景：強力全畫面中央置中
+============================================= */
+#scene-level3-quiz {
+    display: none; /* 預設由 JS 控制顯示/隱藏 */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* 🎯 關鍵：利用 Flex 讓裡面的所有謎題元件、輸入框完美居中 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 上下置中 */
+    align-items: center;     /* 左右置中 */
+    box-sizing: border-box;
+    padding: 20px;
+    background-color: #222; /* 配合你原本的展區暗色調背景 */
+}
+
+/* 謎題裡面的主要內容外框（視需求微調） */
+#scene-level3-quiz .quiz-container, 
+#scene-level3-quiz .custom-dialogue-container {
+    width: 90%;
+    max-width: 340px;
+    margin: 0 auto;
+    position: relative; /* 取消絕對定位，讓它順應 Flex 居中 */
+    bottom: auto;
+    left: auto;
+    transform: none;
+}
+
     </style>
 </head>
 <body>
@@ -612,7 +645,7 @@ body, html {
             畫面變回臺史博的現代全景。<br>
             感謝參與本次測試！
         </p>
-        <button class="btn" style="background:#2c3e50;" onclick="resetGame()">重返撤離行動</button>
+  <button class="btn-restart" onclick="restartGame()">重新開始行動</button>
     </div>
 
     <!-- 獎勵彈窗 Overlay -->
@@ -720,21 +753,30 @@ body, html {
 
 let html5QrcodeScanner = null;
 
-// 🎯 切換場景函式
 function nextScene(sceneId) {
-    document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
+    // 1. 先隱藏所有場景
+    document.querySelectorAll('.scene').forEach(s => {
+        s.style.display = 'none';
+    });
+    
     const nextSceneEl = document.getElementById(sceneId);
-    if (nextSceneEl) nextSceneEl.style.display = 'block';
+    if (nextSceneEl) {
+        // 🎯 修正：如果是謎題關卡，切換顯示為 flex 才能完美居中；其餘用 block
+        if (sceneId === 'scene-level3-quiz') {
+            nextSceneEl.style.style.display = 'flex'; 
+        } else {
+            nextSceneEl.style.display = 'block';
+        }
+    }
 
     // 🚀 核心動態搬移與啟動邏輯
     if (sceneId === 'scene-level1-scan') {
         startCamera('WATER_BUFFALO', 'reader');
     } else if (sceneId === 'scene-level2-scan') {
-        // 💡 密技：當進入第二關掃描時，動態把第一關的 #reader 元素搬移到第二關的場景裡！
+        // 💡 當進入第二關掃描時，把 #reader 搬移到第二關
         const readerTarget = document.getElementById('reader');
         const level2Scene = document.getElementById('scene-level2-scan');
         if (readerTarget && level2Scene) {
-            // 把 reader 插入到第二關對話框的前面
             level2Scene.insertBefore(readerTarget, level2Scene.firstChild);
         }
         startCamera('OLD_CAMERA', 'reader');
@@ -817,11 +859,32 @@ function stopCamera(returnSceneId) {
     }
 }
     // 重置遊戲
-    function resetGame() {
-        prologueIdx = 0;
-        updateDialogueScreen();
-        nextScene('scene-start');
+function restartGame() {
+    // 🛑 1. 安全關閉並銷毀當前的相機，釋放硬體軌道
+    if (html5QrcodeScanner) {
+        try {
+            html5QrcodeScanner.clear();
+        } catch(e) {
+            console.log("重啟時清除相機異常，忽略之");
+        }
     }
+    
+    // 🎯 2. 靈魂修正：把 `#reader` 重新安全地搬回第一關（水牛掃描）的結構內！
+    const readerTarget = document.getElementById('reader');
+    const level1Scene = document.getElementById('scene-level1-scan');
+    if (readerTarget && level1Scene) {
+        // 確保搬回第一關對話框的前面，重置初始位置
+        level1Scene.insertBefore(readerTarget, level1Scene.firstChild); 
+    }
+    
+    // 3. 如果你有任何遊戲分數、銀幣狀態計數器，在這裡順便重置為 0
+    // 例如：playerCoins = 0; 
+    
+    // 4. 清除完畢，安全跳回最初的序章開頭（請根據你封面的 id 修改，此處以 scene-prologue-dialogue 為例）
+    nextScene('scene-prologue-dialogue'); 
+    
+    alert("⏳ 時空坐標已重設，撤離行動重頭開始！");
+}
 
 
 </script>
