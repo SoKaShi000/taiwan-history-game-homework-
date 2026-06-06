@@ -660,120 +660,47 @@ body, html {
 </div>
 
 <script>
-// 目前關卡狀態
-    let currentRewardType = 1;
-
-    // 場景切換邏輯 (加上此邏輯後，點擊按鈕時才會正確關閉舊關卡、顯示新關卡)
-    function nextScene(sceneId) {
-        const scenes = document.querySelectorAll('.scene');
-        scenes.forEach(scene => scene.classList.remove('active'));
-        document.getElementById(sceneId).classList.add('active');
-    }
-
-    // 序章多步驟對話劇本設定
-    const prologueScript = [
-        { name: "系統", text: "（螢幕出現強烈雜訊...）" },
-        { name: "導航員 · 漢斯", text: "「長官！您終於連上線了！時空震盪把我們縮小並拋到了幾百年後的『大員』。」" },
-        { name: "導航員 · 漢斯", text: "「雖然這裡變了很多，但只要找回當初遺失的里爾銀幣，我們就能向總部發送座標撤離！」" },
-        { name: "導航員 · 漢斯", text: "「請在我的指引下，於『倚海而生的島與人』展區找到第一枚銀幣，並進行第一次『時空搖晃』！」" }
-    ];
-    let prologueIdx = 0;
-
-    function updateDialogueScreen() {
-        const currentLine = prologueScript[prologueIdx];
-        document.getElementById('prologue-speaker').innerText = currentLine.name;
-        document.getElementById('prologue-text').innerText = currentLine.text;
-    }
-
-    // 點擊對話框畫面時觸發換頁
-// 點擊對話框畫面時觸發換頁與表情切換
-    function prologueNextClick() {
-        prologueIdx++;
-        if (prologueIdx < prologueScript.length) {
-            updateDialogueScreen();
-            
-            // 🎯 漢斯表情切換機制
-            const hansElement = document.getElementById('hans-character');
-            if (prologueScript[prologueIdx].name === "導航員 · 漢斯") {
-                // 當說話者是漢斯時，換成 Hans_2.png (開口說話)
-                hansElement.style.backgroundImage = "url('Hans_2.png')";
-            } else {
-                // 如果不是漢斯（例如系統），就換回 Hans_1.png (閉口)
-                hansElement.style.backgroundImage = "url('Hans_1.png')";
-            }
-            
-        } else {
-            nextScene('scene-level1-hint'); // 讀完後前往下一關
-        }
-    }
-
-    // 彈出獎勵視窗
-    function showReward(type) {
-        currentRewardType = type;
-        const details = document.getElementById('reward-details');
-        const title = document.getElementById('reward-title');
-        
-        if(type === 1) {
-            title.innerText = "🎉 尋獲目標！";
-            details.innerHTML = `
-                <div style="margin:5px 0;">🤝 登錄員工：搬運工 · 皮特</div>
-                <div style="margin:5px 0;">🌾 獲得補給：【精選農產品】</div>
-                <div style="margin:5px 0;">🪙 獲得關鍵道具：第二枚里爾銀幣</div>
-            `;
-        } else if(type === 2) {
-            title.innerText = "🎉 成功接頭！";
-            details.innerHTML = `
-                <div style="margin:5px 0;">🤝 登錄員工：情報員 · 安娜</div>
-                <div style="margin:5px 0;">🎞️ 獲得物資：【化學感光劑】</div>
-                <div style="margin:5px 0;">⚠️ 警告：最後一枚銀幣遭到時空鎖定</div>
-            `;
-        }
-        document.getElementById('reward-pop').style.display = 'flex';
-    }
-
-    // 關閉獎勵彈窗
-    function closeReward() {
-        document.getElementById('reward-pop').style.display = 'none';
-        if(currentRewardType === 1) {
-            nextScene('scene-level1-dialogue');
-        } else {
-            nextScene('scene-level2-dialogue');
-        }
-    }
-
-    // 第三關解密防呆機制
-    function checkAnswer(isCorrect) {
-        if(isCorrect) {
-            alert("解密成功！關鍵文字已填補！");
-            nextScene('scene-level3-dialogue');
-        } else {
-            alert("文字無法產生共鳴...（答錯囉，再試一次！）");
-        }
-    }
-
+// =============================================
+// ⚙️ 核心遊戲狀態與相機/場景控制（全功能完美修正版）
+// =============================================
 let html5QrcodeScanner = null;
+let prologueIdx = 0;
+let currentRewardType = 1;
 
+// 序章多步驟對話劇本設定
+const prologueScript = [
+    { name: "系統", text: "（螢幕出現強烈雜訊...）" },
+    { name: "導航員 · 漢斯", text: "「長官！您終於連上線了！時空震盪把我們縮小並拋到了幾百年後的『大員』。」" },
+    { name: "導航員 · 漢斯", text: "「雖然這裡變了很多，但只要找回當初遺失的里爾銀幣，我們就能向總部發送座標撤離！」" },
+    { name: "導航員 · 漢斯", text: "「請在我的指引下，於『倚海而生的島與人』展區找到第一枚銀幣，並進行第一次『時空搖晃』！」" }
+];
+
+// 🎯 【唯一且完美的場景切換功能】合體修正版
 function nextScene(sceneId) {
-    // 1. 先隱藏所有場景
+    // 1. 隱藏所有場景（清除舊的 active 標籤並強制隱藏，雙重保險防穿透）
     document.querySelectorAll('.scene').forEach(s => {
+        s.classList.remove('active');
         s.style.display = 'none';
     });
     
+    // 2. 秀出目標場景
     const nextSceneEl = document.getElementById(sceneId);
     if (nextSceneEl) {
-        // 🎯 修正：如果是謎題關卡，切換顯示為 flex 才能完美居中；其餘用 block
+        nextSceneEl.classList.add('active');
+        
+        // 🎯 修正：如果是第三關謎題，用 flex 居中；其他關卡用預設的 flex/block 即可
         if (sceneId === 'scene-level3-quiz') {
-            nextSceneEl.style.style.display = 'flex'; 
+            nextSceneEl.style.display = 'flex'; 
         } else {
-            nextSceneEl.style.display = 'block';
+            nextSceneEl.style.display = ''; // 恢復 CSS 原生設定
         }
     }
 
-    // 🚀 核心動態搬移與啟動邏輯
+    // 🚀 核心相機動態搬移與啟動邏輯
     if (sceneId === 'scene-level1-scan') {
         startCamera('WATER_BUFFALO', 'reader');
     } else if (sceneId === 'scene-level2-scan') {
-        // 💡 當進入第二關掃描時，把 #reader 搬移到第二關
+        // 💡 當進入第二關掃描時，自動把第一關的 #reader 搬移到第二關的畫面裡
         const readerTarget = document.getElementById('reader');
         const level2Scene = document.getElementById('scene-level2-scan');
         if (readerTarget && level2Scene) {
@@ -783,9 +710,75 @@ function nextScene(sceneId) {
     }
 }
 
+// 🧭 序章對話點擊更新
+function updateDialogueScreen() {
+    const currentLine = prologueScript[prologueIdx];
+    document.getElementById('prologue-speaker').innerText = currentLine.name;
+    document.getElementById('prologue-text').innerText = currentLine.text;
+}
+
+function prologueNextClick() {
+    prologueIdx++;
+    if (prologueIdx < prologueScript.length) {
+        updateDialogueScreen();
+        
+        // 漢斯表情切換
+        const hansElement = document.getElementById('hans-character');
+        if (prologueScript[prologueIdx].name === "導航員 · 漢斯") {
+            hansElement.style.backgroundImage = "url('Hans_2.png')";
+        } else {
+            hansElement.style.backgroundImage = "url('Hans_1.png')";
+        }
+    } else {
+        nextScene('scene-level1-hint'); 
+    }
+}
+
+// 🎁 獎勵視窗控制
+function showReward(type) {
+    currentRewardType = type;
+    const details = document.getElementById('reward-details');
+    const title = document.getElementById('reward-title');
+    
+    if(type === 1) {
+        title.innerText = "🎉 尋獲目標！";
+        details.innerHTML = `
+            <div style="margin:5px 0;">🤝 登錄員工：搬運工 · 皮特</div>
+            <div style="margin:5px 0;">🌾 獲得補給：【精選農產品】</div>
+            <div style="margin:5px 0;">🪙 獲得關鍵道具：第二枚里爾銀幣</div>
+        `;
+    } else if(type === 2) {
+        title.innerText = "🎉 成功接頭！";
+        details.innerHTML = `
+            <div style="margin:5px 0;">🤝 登錄員工：情報員 · 安娜</div>
+            <div style="margin:5px 0;">🎞️ 獲得物資：【化學感光劑】</div>
+            <div style="margin:5px 0;">⚠️ 警告：最後一枚銀幣遭到時空鎖定</div>
+        `;
+    }
+    document.getElementById('reward-pop').style.display = 'flex';
+}
+
+function closeReward() {
+    document.getElementById('reward-pop').style.display = 'none';
+    if(currentRewardType === 1) {
+        nextScene('scene-level1-dialogue');
+    } else {
+        nextScene('scene-level2-dialogue');
+    }
+}
+
+// 🧩 謎題答案檢查
+function checkAnswer(isCorrect) {
+    if(isCorrect) {
+        alert("🎯 解密成功！關鍵文字已填補！");
+        nextScene('scene-level3-dialogue');
+    } else {
+        alert("❌ 文字無法產生共鳴...（答錯囉，再試一次！）");
+    }
+}
+
 // 📸 啟動相機掃描
 function startCamera(targetAnswer, elementId) {
-    // 💡 強制防卡死：如果之前有任何執行中的實例，先不留情面地 clear 掉
     if (html5QrcodeScanner) {
         try {
             html5QrcodeScanner.clear();
@@ -794,49 +787,36 @@ function startCamera(targetAnswer, elementId) {
         }
     }
 
-    // 重新初始化單一實例
     html5QrcodeScanner = new Html5Qrcode(elementId);
-    
-    const config = { 
-        fps: 10, 
-        qrbox: { width: 230, height: 230 } 
-    };
+    const config = { fps: 10, qrbox: { width: 230, height: 230 } };
 
-    // 叫用後置相機
     html5QrcodeScanner.start(
         { facingMode: "environment" },
         config,
         (decodedText, decodedResult) => {
             console.log(`掃描到文字: ${decodedText}`);
-            
             if (decodedText.trim().toUpperCase() === targetAnswer.toUpperCase()) {
-                alert("🎯 偵測到正確的時空波動！成功捕獲目標！");
                 
-                // 成功時的安全關閉流程
+                // 掃描成功後彈出對應的精美獎勵視窗，不直接跳關
                 html5QrcodeScanner.stop().then(() => {
                     html5QrcodeScanner.clear();
-                    
                     if (targetAnswer === 'WATER_BUFFALO') {
-                        nextScene('scene-level1-dialogue');
+                        showReward(1); // 叫出皮特的獎勵彈窗
                     } else if (targetAnswer === 'OLD_CAMERA') {
-                        nextScene('scene-level2-dialogue');
+                        showReward(2); // 叫出安娜的獎勵彈窗
                     }
                 }).catch(err => {
-                    // 即使 stop 卡住也強制拔線，確保不影響遊戲進行
                     html5QrcodeScanner.clear();
-                    if (targetAnswer === 'WATER_BUFFALO') nextScene('scene-level1-dialogue');
-                    if (targetAnswer === 'OLD_CAMERA') nextScene('scene-level2-dialogue');
+                    if (targetAnswer === 'WATER_BUFFALO') showReward(1);
+                    if (targetAnswer === 'OLD_CAMERA') showReward(2);
                 });
             } else {
                 alert("❌ 警告：此處非目標殘留痕跡，時空坐標不符，請重新尋找！");
             }
         },
-        (errorMessage) => {
-            // 忽略常態模糊
-        }
+        (errorMessage) => {}
     ).catch((err) => {
-        console.error("相機啟動卡死防禦:", err);
-        // 如果被瀏覽器安全性卡住，彈出提示，但不卡死按鈕
+        console.error("相機開啟失敗:", err);
     });
 }
 
@@ -845,47 +825,47 @@ function stopCamera(returnSceneId) {
     if (html5QrcodeScanner) {
         html5QrcodeScanner.stop().then(() => {
             html5QrcodeScanner.clear();
-            let target = returnSceneId ? returnSceneId : 'scene-level1-hint';
-            nextScene(target); 
+            nextScene(returnSceneId || 'scene-level1-hint'); 
         }).catch(err => {
-            // 萬一卡死，強制進行垃圾回收並切換場景
             html5QrcodeScanner.clear();
-            let target = returnSceneId ? returnSceneId : 'scene-level1-hint';
-            nextScene(target);
+            nextScene(returnSceneId || 'scene-level1-hint');
         });
     } else {
-        let target = returnSceneId ? returnSceneId : 'scene-level1-hint';
-        nextScene(target);
+        nextScene(returnSceneId || 'scene-level1-hint');
     }
 }
-    // 重置遊戲
+
+// 🔄 徹底安全重置遊戲（相機歸位、序章重置）
 function restartGame() {
-    // 🛑 1. 安全關閉並銷毀當前的相機，釋放硬體軌道
     if (html5QrcodeScanner) {
         try {
             html5QrcodeScanner.clear();
         } catch(e) {
-            console.log("重啟時清除相機異常，忽略之");
+            console.log("重啟清除相機異常，忽略");
         }
     }
     
-    // 🎯 2. 靈魂修正：把 `#reader` 重新安全地搬回第一關（水牛掃描）的結構內！
+    // 1. 關鍵歸位：把 #reader 安全移回第一關（水牛）的畫面
     const readerTarget = document.getElementById('reader');
     const level1Scene = document.getElementById('scene-level1-scan');
     if (readerTarget && level1Scene) {
-        // 確保搬回第一關對話框的前面，重置初始位置
         level1Scene.insertBefore(readerTarget, level1Scene.firstChild); 
     }
     
-    // 3. 如果你有任何遊戲分數、銀幣狀態計數器，在這裡順便重置為 0
-    // 例如：playerCoins = 0; 
+    // 2. 重置對話與變數狀態
+    prologueIdx = 0;
+    currentRewardType = 1;
     
-    // 4. 清除完畢，安全跳回最初的序章開頭（請根據你封面的 id 修改，此處以 scene-prologue-dialogue 為例）
-    nextScene('scene-prologue-dialogue'); 
+    // 3. 更新一下序章第一句話的文字
+    updateDialogueScreen();
+    const hansElement = document.getElementById('hans-character');
+    if (hansElement) hansElement.style.backgroundImage = "url('Hans_1.png')";
     
-    alert("⏳ 時空坐標已重設，撤離行動重頭開始！");
+    // 4. 返回開頭封面（scene-start）
+    nextScene('scene-start'); 
+    
+    alert("⏳ 時空座標已安全重設，撤離行動可以重新開始了！");
 }
-
 
 </script>
 
