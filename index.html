@@ -434,27 +434,26 @@ body, html {
 /* =============================================
    📸 視訊掃描視窗強力排版修正（防止擠壓對話框）
 ============================================= */
-#reader {
+/* 讓兩個相機黑框都吃到一模一樣的完美外觀與強力防擠壓排版 */
+#reader, #reader-level2 {
     width: 90% !important;
     max-width: 320px !important;
     margin: 10px auto !important;
     background: #000 !important;
-    border: 2px solid #ffd700 !important; /* 加個金框看起來更像遊戲道具 */
+    border: 2px solid #ffd700 !important;
     border-radius: 12px !important;
     overflow: hidden !important;
     box-shadow: 0 4px 15px rgba(0,0,0,0.6) !important;
 }
 
-/* 🚨 核心關鍵：強制隱藏 html5-qrcode 自動產生的雜亂文字與原生按鈕 */
-#reader span, 
-#reader a, 
-#reader select, 
-#reader button {
+/* 強制隱藏 html5-qrcode 自動產生的雜亂文字與原生按鈕 */
+#reader span, #reader a, #reader select, #reader button,
+#reader-level2 span, #reader-level2 a, #reader-level2 select, #reader-level2 button {
     display: none !important;
 }
 
-/* 強制讓套件裡面的視訊畫面（video）填滿黑框，不亂變形 */
-#reader video {
+/* 強制視訊畫面填滿 */
+#reader video, #reader-level2 video {
     width: 100% !important;
     height: auto !important;
     object-fit: cover !important;
@@ -729,28 +728,28 @@ let html5QrcodeScanner = null;
 
 // 🎯 修改你原本的切換場景函式，讓它在進入掃描關卡時「自動開啟相機」
 function nextScene(sceneId) {
-    // 先隱藏所有場景（保留你原本的切換邏輯）
+    // 先隱藏所有場景
     document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
     const nextSceneEl = document.getElementById(sceneId);
     if (nextSceneEl) nextSceneEl.style.display = 'block';
 
-// 🚀 核心判定：如果進入了掃描關卡，就啟動相機
+    // 🚀 核心判定：進入掃描關卡時，傳入「目標答案」與「對應的 HTML 容器 ID」
     if (sceneId === 'scene-level1-scan') {
-        startCamera('WATER_BUFFALO'); // 第一關目標：水牛
+        startCamera('WATER_BUFFALO', 'reader');        // 第一關：繫結 #reader
     } else if (sceneId === 'scene-level2-scan') {
-        startCamera('OLD_CAMERA');   // 第二關目標：老相機，會自動渲染到當前可見的 reader 中
+        startCamera('OLD_CAMERA', 'reader-level2');   // 第二關：繫結 #reader-level2
     }
 }
 
-// 📸 啟動相機掃描
-function startCamera(targetAnswer) {
+// 📸 啟動相機掃描（升級版：支援動態指定容器標籤）
+function startCamera(targetAnswer, elementId) {
     // 如果之前有殘留的掃描器，先清除
     if (html5QrcodeScanner) {
         html5QrcodeScanner.clear();
     }
 
-    // 初始化掃描器，設定每秒幀數(fps)與掃描框大小(qrbox)
-    html5QrcodeScanner = new Html5Qrcode("reader");
+    // 🎯 關鍵修正：根據當前關卡，精確初始化對應的 HTML 標籤（reader 或 reader-level2）
+    html5QrcodeScanner = new Html5Qrcode(elementId);
     
     const config = { 
         fps: 10, 
@@ -765,25 +764,30 @@ function startCamera(targetAnswer) {
             // 🎯 【成功掃描到 QR Code 內容】
             console.log(`掃描到文字: ${decodedText}`);
             
-            // 進行比對判定
-            if (decodedText.trim() === targetAnswer) {
+            // 進行比對判定（忽略前後空格與大小寫）
+            if (decodedText.trim().toUpperCase() === targetAnswer.toUpperCase()) {
                 alert("🎯 偵測到正確的時空波動！成功捕獲目標！");
                 
                 // 關閉相機並前進到下一個對話場景
                 html5QrcodeScanner.stop().then(() => {
+                    html5QrcodeScanner.clear(); // 停止後立刻清除結構，恢復排版
+                    
                     if (targetAnswer === 'WATER_BUFFALO') {
                         nextScene('scene-level1-dialogue'); // 跳到皮特登場
                     } else if (targetAnswer === 'OLD_CAMERA') {
                         nextScene('scene-level2-dialogue'); // 跳到安娜登場
                     }
+                }).catch(err => {
+                    html5QrcodeScanner.clear();
+                    if (targetAnswer === 'WATER_BUFFALO') nextScene('scene-level1-dialogue');
+                    if (targetAnswer === 'OLD_CAMERA') nextScene('scene-level2-dialogue');
                 });
             } else {
-                // 如果掃錯了展品的 QR Code
                 alert("❌ 警告：此處非目標殘留痕跡，時空坐標不符，請重新尋找！");
             }
         },
         (errorMessage) => {
-            // 掃描中的常態性錯誤（例如沒對準、畫面模糊），通常忽略不計
+            // 掃描中的常態性錯誤，通常忽略不計
         }
     ).catch((err) => {
         console.error("無法開啟相機: ", err);
@@ -791,23 +795,19 @@ function startCamera(targetAnswer) {
     });
 }
 
-// 🛑 手動關閉相機（升級版：支援指定返回的場景 ID）
+// 🛑 手動關閉相機（支援指定返回的場景 ID）
 function stopCamera(returnSceneId) {
     if (html5QrcodeScanner) {
         html5QrcodeScanner.stop().then(() => {
             html5QrcodeScanner.clear(); // 清除結構，恢復排版
-            
-            // 如果有指定回傳的關卡就去那裡，沒有的話預設回第一關提示
             let target = returnSceneId ? returnSceneId : 'scene-level1-hint';
             nextScene(target); 
         }).catch(err => {
-            console.log("關閉相機時發生微小錯誤，強制清除結構", err);
             html5QrcodeScanner.clear();
             let target = returnSceneId ? returnSceneId : 'scene-level1-hint';
             nextScene(target);
         });
     } else {
-        // 如果相機根本沒啟動，直接切換場景
         let target = returnSceneId ? returnSceneId : 'scene-level1-hint';
         nextScene(target);
     }
