@@ -470,14 +470,7 @@ body, html {
     <div id="scene-start" class="scene active">
         <div class="title">時空遺珠</div>
         <div class="subtitle">VOC 府城撤離行動</div>
-        <button class="btn" onclick="nextScene('scene-prologue-scan')">開啟觀測設備</button>
-    </div>
-
-    <!-- 2. 序章：提示掃描啟動點 -->
-    <div id="scene-prologue-scan" class="scene scan-scene">
-        <div class="scan-hint">請尋找 2F 入口「大員港口」的 QR Code</div>
-        <div class="scan-window"><div class="scan-line"></div></div>
-        <button class="btn" onclick="nextScene('scene-prologue-dialogue')">【模擬掃描成功】</button>
+        <button class="btn" onclick="nextScene('scene-prologue-dialogue')">開啟觀測設備</button>
     </div>
 
     <!-- 3. 序章：對話介面 -->
@@ -729,107 +722,81 @@ body, html {
         }
     }
 
-    let html5QrcodeScanner = null;
+let html5QrcodeScanner = null;
 
-// 📸 啟動相機掃描（修正高相容性版本）
-function startCamera(targetAnswer) {
-    if (html5QrcodeScanner) {
-        // 如果正在執行，先嘗試停止並清除，避免重複佔用裝置
-        html5QrcodeScanner.stop().then(() => {
-            html5QrcodeScanner.clear();
-            initAndStartScanner(targetAnswer);
-        }).catch(() => {
-            html5QrcodeScanner.clear();
-            initAndStartScanner(targetAnswer);
-        });
-    } else {
-        initAndStartScanner(targetAnswer);
+// 🎯 修改你原本的切換場景函式，讓它在進入掃描關卡時「自動開啟相機」
+function nextScene(sceneId) {
+    // 先隱藏所有場景（保留你原本的切換邏輯）
+    document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
+    const nextSceneEl = document.getElementById(sceneId);
+    if (nextSceneEl) nextSceneEl.style.display = 'block';
+
+    // 🚀 核心判定：如果進入了掃描關卡，就啟動相機
+    if (sceneId === 'scene-level1-scan') {
+        startCamera('WATER_BUFFALO'); // 第一關目標：水牛
+    } else if (sceneId === 'scene-level2-scan') {
+        startCamera('OLD_CAMERA');   // 第二關目標：老相機
     }
 }
 
-// 實際初始化與啟動鏡頭
-function initAndStartScanner(targetAnswer) {
+// 📸 啟動相機掃描
+function startCamera(targetAnswer) {
+    // 如果之前有殘留的掃描器，先清除
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear();
+    }
+
+    // 初始化掃描器，設定每秒幀數(fps)與掃描框大小(qrbox)
     html5QrcodeScanner = new Html5Qrcode("reader");
     
-    // 最佳化掃描框與偵測率
     const config = { 
-        fps: 20, // 提高幀率讓對焦更靈敏
-        qrbox: function(viewfinderWidth, viewfinderHeight) {
-            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-            const qrboxSize = Math.floor(minEdge * 0.75); // 讓掃描框適中
-            return { width: qrboxSize, height: qrboxSize };
-        }
+        fps: 10, 
+        qrbox: { width: 250, height: 250 } 
     };
 
-    // 🚀 建立鏡頭順序清單：1.環境後鏡頭 2.預設使用者/任何鏡頭 (防呆機制)
-    Html5Qrcode.getCameras().then(devices => {
-        if (devices && devices.length > 0) {
-            // 優先尋找名稱包含 back, rear, environment 的後置鏡頭
-            let backCamera = devices.find(device => 
-                device.label.toLowerCase().includes('back') || 
-                device.label.toLowerCase().includes('rear') ||
-                device.label.toLowerCase().includes('environment')
-            );
-            
-            // 如果找到了特定的後鏡頭就用它，找不到就用清單中最後一個鏡頭（通常手機最後一個是後鏡頭）
-            let cameraId = backCamera ? backCamera.id : devices[devices.length - 1].id;
-
-            html5QrcodeScanner.start(
-                cameraId,
-                config,
-                (decodedText) => { handleScanSuccess(decodedText, targetAnswer); },
-                (errorMessage) => { /* 忽略常態模糊錯誤 */ }
-            ).catch(err => {
-                // 如果指定 cameraId 失敗，使用最普遍的原生備用手段
-                fallbackStart(config, targetAnswer);
-            });
-        } else {
-            // 完全讀不到裝置清單時，直接嘗試原生環境呼叫
-            fallbackStart(config, targetAnswer);
-        }
-    }).catch(err => {
-        fallbackStart(config, targetAnswer);
-    });
-}
-
-// 🔄 備用啟動方案：當精確抓取鏡頭識別碼失敗時觸發
-function fallbackStart(config, targetAnswer) {
+    // 開始叫用後置相機 (facingMode: "environment")
     html5QrcodeScanner.start(
         { facingMode: "environment" },
         config,
-        (decodedText) => { handleScanSuccess(decodedText, targetAnswer); },
-        (errorMessage) => { /* 忽略常態錯誤 */ }
-    ).catch(err => {
-        console.error("相機完全無法啟動:", err);
-        alert("無法喚醒相機設備。\n\n請確認：\n1. 網址開頭必須是 https://\n2. 是否封鎖了瀏覽器的相機權限（可到手機設定中檢查）。");
+        (decodedText, decodedResult) => {
+            // 🎯 【成功掃描到 QR Code 內容】
+            console.log(`掃描到文字: ${decodedText}`);
+            
+            // 進行比對判定
+            if (decodedText.trim() === targetAnswer) {
+                alert("🎯 偵測到正確的時空波動！成功捕獲目標！");
+                
+                // 關閉相機並前進到下一個對話場景
+                html5QrcodeScanner.stop().then(() => {
+                    if (targetAnswer === 'WATER_BUFFALO') {
+                        nextScene('scene-level1-dialogue'); // 跳到皮特登場
+                    } else if (targetAnswer === 'OLD_CAMERA') {
+                        nextScene('scene-level2-dialogue'); // 跳到安娜登場
+                    }
+                });
+            } else {
+                // 如果掃錯了展品的 QR Code
+                alert("❌ 警告：此處非目標殘留痕跡，時空坐標不符，請重新尋找！");
+            }
+        },
+        (errorMessage) => {
+            // 掃描中的常態性錯誤（例如沒對準、畫面模糊），通常忽略不計
+        }
+    ).catch((err) => {
+        console.error("無法開啟相機: ", err);
+        alert("無法開啟相機，請確認是否給予網頁相機存取權限，或檢查是否使用 HTTPS 連線。");
     });
 }
 
-// 🎯 統一的掃描成功判定邏輯
-function handleScanSuccess(decodedText, targetAnswer) {
-    console.log(`掃描到內容: ${decodedText}`);
-    
-    if (decodedText.trim().toUpperCase() === targetAnswer.toUpperCase()) {
-        alert("🎯 偵測到正確的時空波動！成功捕獲目標！");
-        
-        if (html5QrcodeScanner) {
-            html5QrcodeScanner.stop().then(() => {
-                if (targetAnswer === 'WATER_BUFFALO') {
-                    nextScene('scene-level1-dialogue');
-                } else if (targetAnswer === 'OLD_CAMERA') {
-                    nextScene('scene-level2-dialogue');
-                }
-            }).catch(err => {
-                // 即使停止出錯也強制切換，確保遊戲不卡死
-                if (targetAnswer === 'WATER_BUFFALO') nextScene('scene-level1-dialogue');
-                if (targetAnswer === 'OLD_CAMERA') nextScene('scene-level2-dialogue');
-            });
-        }
-    } else {
-        alert("❌ 警告：此處時空坐標不符，非目標殘留痕跡！");
+// 🛑 手動關閉相機（用於取消或返回上一幕）
+function stopCamera() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().then(() => {
+            // 返回到提示畫面，這裡根據實際狀況調整
+            nextScene('scene-level1-hint'); 
+        }).catch(err => console.log(err));
     }
 }
-
     // 重置遊戲
     function resetGame() {
         prologueIdx = 0;
