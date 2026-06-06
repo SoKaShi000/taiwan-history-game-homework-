@@ -13,9 +13,9 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-font-family: 'Arial', sans-serif;
--webkit-user-select: none; /* 給 Safari / Chrome 舊版 */
-user-select: none;         /* 全球標準標準寫法（補上這一行） */
+    font-family: 'Arial', sans-serif;
+    -webkit-user-select: none; 
+    user-select: none;         
 }
 body, html {
     width: 100%;
@@ -44,14 +44,14 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    display: none; 
+    display: none; /* 預設全部隱藏 */
     flex-direction: column;
     box-sizing: border-box;
 }
 
-/* 當關卡加上 .active 標籤時，才會秀出來 */
+/* 🎯 統一使用 class 控制切換：當關卡加上 .active 標籤時，才會秀出來 */
 .scene.active {
-    display: flex;
+    display: flex !important;
 }
 
 /*=============================================
@@ -100,7 +100,6 @@ body, html {
    全新的開始按鈕：直覺座標調整版 (圖字分離)
 ============================================= */
 .btn {
-    /* 1. 基本設定（不用動） */
     background-image: url('開始.png'); 
     background-size: contain;         
     background-repeat: no-repeat;
@@ -111,39 +110,25 @@ body, html {
     cursor: pointer;
     z-index: 20; 
     box-sizing: border-box;
-
-    /* 2. 文字樣式設定（不用動） */
     color: #071e4e;                   
     font-size: 1.2rem;
     font-weight: bold;
-
-    /* 3. 改為絕對定位：像貼紙一樣定位 */
     position: absolute;               
-
-    /* =============================================
-       🎯 控制點 A：調整「整個按鈕圖」的大小與位置
-       ============================================= */
-    width: 700px;         /* 👈 1. 在這裡直接改寬度（大或小），圖片和字絕不變形！ */
-    aspect-ratio: 1.75 / 1;/* 鎖定比例，高度會自動跟著寬度縮放 */
-
-    top: 30%;             /* 👈 2. 按鈕距離整個螢幕頂部的比例（例如 55% 或 65%） */
-    left: 50%;            /* 👈 3. 搭配下一行，讓整顆按鈕在螢幕水平正中央 */
+    width: 700px;         
+    aspect-ratio: 1.75 / 1;
+    top: 30%;             
+    left: 50%;            
     transform: translateX(-50%); 
-
-    /* =============================================
-       🎯 控制點 B：調整「文字」在圖片上的相對位置
-       ============================================= */
     display: flex;
-    justify-content: center; /* 讓文字在按鈕寬度內水平置中 */
-    align-items: flex-start; /* 讓文字對齊頂端，方便用 padding 往下推 */
-    
-    padding-top: 300px;    /* 👈 4. 字太高或太低？直接改這個數字（數字越大字越往下） */
-    padding-left: 0px;    /* 👈 5. 如果字需要偏左或偏右，可以微調這個數字 */
+    justify-content: center; 
+    align-items: flex-start; 
+    padding-top: 300px;    
+    padding-left: 0px;    
 }
 
-/* 保護機制：維持其他畫面（如掃描成功、解密）的按鈕外觀，這段不要動 */
+/* 保護機制：維持其他畫面（如掃描成功、解密）的按鈕外觀 */
 .scan-scene .btn, .quiz-container .btn, .reward-overlay .btn {
-    position: relative;   /* 還原定位 */
+    position: relative;   
     top: auto;
     left: auto;
     transform: none;
@@ -158,31 +143,6 @@ body, html {
     border-radius: 30px;
     display: inline-block;
     margin: 10px auto;
-}
-
-/* 保護機制：讓其他畫面的按鈕維持原本的按鈕外觀，不被小船底圖影響 */
-.scan-scene .btn, .quiz-container .btn, .reward-overlay .btn {
-    background-image: none;
-    background-color: #d35400;
-    border: 2px solid #f39c12;
-    color: white;
-    width: auto;
-    height: auto;
-    aspect-ratio: auto;               /* 還原比例 */
-    padding: 12px 30px;
-    border-radius: 30px;
-    display: inline-block;            /* 還原原本的按鈕排列 */
-}
-/* 保護機制：讓其他畫面的按鈕維持原本的按鈕外觀，不被小船底圖影響 */
-.scan-scene .btn, .quiz-container .btn, .reward-overlay .btn {
-    background-image: none;
-    background-color: #d35400;
-    border: 2px solid #f39c12;
-    color: white;
-    width: auto;
-    height: auto;
-    padding: 12px 30px;
-    border-radius: 30px;
 }
 
 /* 遊戲通用小標籤 */
@@ -201,13 +161,12 @@ body, html {
     background-size: 100% 100%;         
     background-repeat: no-repeat;
     position: absolute; 
-    bottom: 0;
+    bottom: 20px; 
     left: 0;
     box-sizing: border-box;
     z-index: 10;
 }
 
-/* 名字方格：精準落入藍灰色小框 */
 .custom-speaker-name {
     position: absolute; 
     top: 63%;         
@@ -217,10 +176,9 @@ body, html {
     color: #071e4e;     
 }
 
-/* 內文方格：精準落入灰色大對話框 */
 .custom-dialogue-text {
     position: absolute;
-    top: 74%;         /* 稍微往上調回一點，避免下面被卡到 */
+    top: 74%;         
     left: 11%;          
     right: 11%;         
     bottom: 6%;         
@@ -230,23 +188,19 @@ body, html {
     overflow-y: auto;   
 }
 
-/* 右下角提示箭頭 */
 .custom-next-tip {
     position: absolute;
     bottom: 4%;
     right: 12%;
     font-size: 0.9rem;
-    color: #071e4e; /* 改成深藍色，配合對話框顏色更明顯 */
+    color: #071e4e; 
     animation: textBlink 1s infinite; 
 }
 @keyframes textBlink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 
-/* 暫時讓掃描介面物件垂直置中 */
 .scan-scene { justify-content: center; align-items: center; padding: 20px; }
-.scan-window { width: 200px; height: 200px; border: 2px solid #fff; position: relative; margin: 20px 0; }
-.scan-line { width: 100%; height: 2px; background: #fff; position: absolute; top: 0; }
 
-/* 彈出式獎勵視窗：修正 z-index 確保蓋在最上層 */
+/* 彈出式獎勵視窗 */
 .reward-overlay { 
     position: absolute; 
     top: 0; 
@@ -259,75 +213,38 @@ body, html {
     justify-content: center; 
     align-items: center;
     padding: 20px;
-    z-index: 100; /* 超高優先級，防止被對話框擋住 */
+    z-index: 100; 
 }
-.quiz-container { background: rgba(0,0,0,0.6); padding: 20px; border-radius: 10px; width: 90%; text-align: center; margin-top: 50px; }
 
-/* =============================================
-   🎯 控制點 C：導航員漢斯（立繪）自訂位置
-============================================= */
-.custom-character-hans {
-    position: absolute;   /* 絕對定位，像貼紙一樣獨立調整 */
-    background-image: url('Hans_1.png'); /* 讀取漢斯圖片 */
-    background-size: contain;            /* 完美等比例，絕不變形 */
-    background-repeat: no-repeat;
-    background-position: bottom center;  /* 讓圖片靠下對齊 */
-    
-    /* 1. 調整漢斯的大小 */
-    width: 350px;         /* 👈【寬度】：想讓漢斯變大就調大（如 320px），高度會自動等比例縮放！ */
-    aspect-ratio: 1 / 2;  /* 鎖定立繪修長比例（約 1比2） */
-
-    /* 2. 調整漢斯在螢幕上的位置 */
-    bottom: 70px;        /* 👈【上下位置】：數字越大，漢斯在螢幕上站得越高 */
-    left: 70%;            /* 👈 搭配下一行，讓漢斯預設站在螢幕水平正中央 */
-    transform: translateX(-50%);
-
-    /* 3. 關鍵圖層順序 */
-    z-index: 5;          /* 👈 漢斯的圖層是 5，對話框是 10，這樣漢斯就會乖乖待在對話框「下面」了！ */
+/* 🎯 修正第三關謎題外框：讓它在 Flexbox 容器內完美置中，不需要過多外邊距 */
+.quiz-container { 
+    background: rgba(0,0,0,0.75); 
+    padding: 25px 20px; 
+    border-radius: 12px; 
+    width: 90%; 
+    max-width: 340px;
+    text-align: center; 
+    border: 2px solid #ffd700;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
-/* =============================================
-   🎯 新增控制點：搬運工 · 皮特（立繪）自訂位置
-============================================= */
-.custom-character-peter {
-    position: absolute;
-    background-size: contain;
+
+/* 立繪角色自訂位置 */
+.custom-character-hans, .custom-character-peter, .custom-character-anna {
+    position: absolute;   
+    background-size: contain;            
     background-repeat: no-repeat;
-    background-position: bottom center;
-    
-    /* 調整皮特的大小（男生體格較寬，寬度給 300px） */
+    background-position: bottom center;  
     width: 350px;         
     aspect-ratio: 1 / 2;  
-    
-    /* 調整皮特在螢幕上的位置 */
     bottom: 70px;        
     left: 70%;            
     transform: translateX(-50%);
-    z-index: 5; /* 確保在對話框下方 */
+    z-index: 5;          
 }
 
-/* =============================================
-   🎯 新增控制點：情報員 · 安娜（立繪）自訂位置
-============================================= */
-.custom-character-anna {
-    position: absolute;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: bottom center;
-    
-    /* 調整安娜的大小 */
-    width: 350px;         
-    aspect-ratio: 1 / 2;  
-    
-    /* 調整安娜在螢幕上的位置 */
-    bottom: 70px;        
-    left: 70%;            
-    transform: translateX(-50%);
-    z-index: 5; /* 確保在對話框下方 */
-}
+.custom-character-hans { background-image: url('Hans_1.png'); }
 
-/* =============================================
-   🎯 結局三人並排專用樣式（以大尺寸、舒適站位為基準）
-============================================= */
+/* 結局三人並排專用樣式 */
 .custom-character-trio-container {
     position: absolute;
     width: 100%;
@@ -335,96 +252,51 @@ body, html {
     top: 0;
     left: 0;
     z-index: 5;
-    pointer-events: none; /* 穿透點擊，不干擾對話框 */
+    pointer-events: none; 
 }
-
-/* 三個人共同的基礎大立繪設定 */
 .trio-member {
     position: absolute;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: bottom center;
-    
-    /* 🎯 統一使用你指定的完美大尺寸基準 */
     width: 350px;         
     aspect-ratio: 1 / 2;  
-    bottom: 70px; /* 貼近對話框邊緣的舒適高度 */
+    bottom: 70px; 
 }
+.member-hans { left: 25%; transform: translateX(-50%); z-index: 6; }
+.member-peter { left: 50%; transform: translateX(-50%); z-index: 5; }
+.member-anna { left: 75%; transform: translateX(-50%); z-index: 7; }
 
-/* 🧭 左側：導航員 · 漢斯 */
-.member-hans {
-    left: 25%; /* 站在偏左的位置 */
-    transform: translateX(-50%);
-    z-index: 6;
-}
-
-/* 📦 中間：搬運工 · 皮特（男生體格較寬，稍微給大一點點或維持同高，並放在後層） */
-.member-peter {
-    left: 50%; /* 站在正中間 */
-    transform: translateX(-50%);
-    z-index: 5; /* 放在中層，讓左右兩位微微擋住他的肩膀，看起來很有層次 */
-}
-
-/* 🕵️‍♀️ 右側：情報員 · 安娜 */
-.member-anna {
-    /* 🎯 完美套用你提供的基準數值 */
-    left: 75%; /* 調整站位到偏右（從 70% 微調到 75% 讓三人更對稱等距） */
-    transform: translateX(-50%);
-    z-index: 7; /* 放在最前層 */
-}
-
-/* =============================================
-   🎯 控制點 D：順便微調對話框本身的上下位置
-============================================= */
-.custom-dialogue-container {
-    /* 保持你原本的設定不變，只要確認/加上下面這三行就能隨便移動對話框 */
-    position: absolute;   
-    bottom: 20px;         /* 👈【對話框距底部高度】：如果想讓對話框高一點，可以調大（如 40px） */
-    z-index: 10;          /* 👈 圖層是 10，確保蓋在漢斯（層級5）的上面 */
-}
-
-/* =============================================
-   🎯 新增控制點：進入結局前的關鍵裝置按鈕
-============================================= */
+/* 關鍵裝置按鈕 */
 .custom-end-trigger-btn {
     position: absolute;
-    top: 60%; /* 讓它出現在畫面中偏上方、不會被安娜或對話框完全擋到的地方 */
+    top: 60%; 
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    z-index: 20; /* 確保它在最上層，絕對可以被點擊到 */
+    z-index: 20; 
     cursor: pointer;
-    animation: floatingDevice 3s ease-in-out infinite; /* 微弱的漂浮感特效 */
+    animation: floatingDevice 3s ease-in-out infinite; 
 }
-
 .custom-end-trigger-btn img {
-    width: 250px; /* 調整指南針按鈕的大小 */
+    width: 250px; 
     height: auto;
     display: block;
     margin: 0 auto 10px;
-    filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.5)); /* 加上陰影讓它立體 */
-    transition: transform 0.2s ease;
+    filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.5)); 
 }
+.custom-end-trigger-btn :active img { transform: scale(0.92); }
 
-/* 點擊時的縮放反饋 */
-.custom-end-trigger-btn :active img {
-    transform: scale(0.92);
-}
-
-/* 按鈕下方的提示文字小標籤 */
 .trigger-btn-text {
     background-color: rgba(26, 26, 26, 0.85);
-    color: #ffd700; /* 黃金配色 */
+    color: #ffd700; 
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 14px;
     font-weight: bold;
     border: 1px solid #ffd700;
     letter-spacing: 1px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
-
-/* 讓按鈕微微上下浮動的動畫，看起來更像可以互動的道具 */
 @keyframes floatingDevice {
     0% { transform: translate(-50%, -50%) translateY(0px); }
     50% { transform: translate(-50%, -50%) translateY(-8px); }
@@ -432,7 +304,7 @@ body, html {
 }
 
 /* =============================================
-   📸 視訊掃描視窗強力排版（統一相容版）
+   📸 視訊掃描視窗強力排版
 ============================================= */
 #reader, [id^="reader"] {
     width: 90% !important;
@@ -444,50 +316,25 @@ body, html {
     overflow: hidden !important;
     box-shadow: 0 4px 15px rgba(0,0,0,0.6) !important;
 }
+#reader span, #reader a, #reader select, #reader button { display: none !important; }
+#reader video { width: 100% !important; height: auto !important; object-fit: cover !important; display: block !important; }
 
-#reader span, #reader a, #reader select, #reader button {
-    display: none !important;
-}
-
-#reader video {
-    width: 100% !important;
-    height: auto !important;
-    object-fit: cover !important;
-    display: block !important;
-}
 /* =============================================
-   🧩 第三關謎題場景：強力全畫面中央置中
+   🧩 🎯 第三關謎題場景：強力全畫面中央置中
 ============================================= */
 #scene-level3-quiz {
-    display: none; /* 預設由 JS 控制顯示/隱藏 */
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    
-    /* 🎯 關鍵：利用 Flex 讓裡面的所有謎題元件、輸入框完美居中 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* 上下置中 */
-    align-items: center;     /* 左右置中 */
     box-sizing: border-box;
     padding: 20px;
-    background-color: #222; /* 配合你原本的展區暗色調背景 */
+    
+    /* 透過 flex 讓內容完美上下左右置中 */
+    justify-content: center; 
+    align-items: center;     
 }
-
-/* 謎題裡面的主要內容外框（視需求微調） */
-#scene-level3-quiz .quiz-container, 
-#scene-level3-quiz .custom-dialogue-container {
-    width: 90%;
-    max-width: 340px;
-    margin: 0 auto;
-    position: relative; /* 取消絕對定位，讓它順應 Flex 居中 */
-    bottom: auto;
-    left: auto;
-    transform: none;
-}
-
     </style>
 </head>
 <body>
@@ -502,11 +349,9 @@ body, html {
     </div>
 
     <!-- 3. 序章：對話介面 -->
-<div id="scene-prologue-dialogue" class="scene dialogue-scene" onclick="prologueNextClick()">
+    <div id="scene-prologue-dialogue" class="scene dialogue-scene" onclick="prologueNextClick()">
         <div class="location-tag">場景：2F 入口「大員港口」</div>
-        
         <div id="hans-character" class="custom-character-hans"></div> 
-
         <div class="custom-dialogue-container">
             <div class="custom-speaker-name" id="prologue-speaker">系統</div>
             <div class="custom-dialogue-text" id="prologue-text">（螢幕出現強烈雜訊...）</div>
@@ -514,11 +359,10 @@ body, html {
         </div>
     </div>
 
-<div id="scene-level1-hint" class="scene dialogue-scene" onclick="nextScene('scene-level1-scan')">
+    <!-- 4. 第一關提示 -->
+    <div id="scene-level1-hint" class="scene dialogue-scene" onclick="nextScene('scene-level1-scan')">
         <div class="location-tag">場景：「山海之間的共存與競逐」</div>
-        
         <div class="custom-character-hans" style="background-image: url('Hans_2.png');"></div>
-
         <div class="custom-dialogue-container">
             <div class="custom-speaker-name">導航員 · 漢斯</div>
             <div class="custom-dialogue-text">「長官！手機搖晃後偵測到強烈的貿易能量！這裡有濃厚的農耕氣息，傳聞附近有一位跟隨『農民朋友』的夥伴，他擁有最快的渡水船。我們去尋找並拍攝『水牛』吧！」</div>
@@ -527,25 +371,20 @@ body, html {
     </div>
 
     <!-- 5. 第一關：掃描介面 -->
-<div id="scene-level1-scan" class="scene dialogue-scene">
+    <div id="scene-level1-scan" class="scene dialogue-scene">
         <div class="location-tag">場景：開啟觀測設備中...</div>
-        
         <div id="reader"></div>
-        
         <div class="custom-dialogue-container" style="position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 90%;">
             <div class="custom-speaker-name">系統提示</div>
             <div class="custom-dialogue-text">「請將相機對準展區對應的『水牛時空痕跡（QR Code）』進行掃描。」</div>
         </div>
-
         <button onclick="stopCamera('scene-level1-hint')" style="position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; padding: 10px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 30;">🛑 關閉觀測設備</button>
     </div>
 
     <!-- 6. 第一關：角色登場對話 -->
-<div id="scene-level1-dialogue" class="scene dialogue-scene" onclick="nextScene('scene-level2-hint')">
+    <div id="scene-level1-dialogue" class="scene dialogue-scene" onclick="nextScene('scene-level2-hint')">
         <div class="location-tag">場景：水牛腳邊的草叢</div>
-        
         <div class="custom-character-peter" style="background-image: url('peter_2.png');"></div>
-
         <div class="custom-dialogue-container">
             <div class="custom-speaker-name">搬運工 · 皮特</div>
             <div class="custom-dialogue-text">「嘿！我正載著這批要出口的稻米呢！多虧長官找到這頭大水牛，不然我差點在泥沼裡迷路了。這枚銀幣也一併交給您吧！」</div>
@@ -554,11 +393,9 @@ body, html {
     </div>
 
     <!-- 7. 第二關：提示尋找老相機 -->
-<div id="scene-level2-hint" class="scene dialogue-scene" onclick="nextScene('scene-level2-scan')">
+    <div id="scene-level2-hint" class="scene dialogue-scene" onclick="nextScene('scene-level2-scan')">
         <div class="location-tag">場景：「新秩序下的苦悶與夢想」</div>
-        
         <div class="custom-character-peter" style="background-image: url('peter_1.png');"></div>
-
         <div class="custom-dialogue-container">
             <div class="custom-speaker-name">搬運工 · 皮特</div>
             <div class="custom-dialogue-text"><br>「長官，這裡氣氛變得很嚴肅，到處都是巨大的巡警。我們需要新的夥伴來偽裝！根據提示：去尋找能留下瞬間記憶的黑盒子吧！」</div>
@@ -567,23 +404,20 @@ body, html {
     </div>
 
     <!-- 8. 第二關：掃描老相機 QRcode -->
-<div id="scene-level2-scan" class="scene dialogue-scene">
+    <div id="scene-level2-scan" class="scene dialogue-scene">
         <div class="location-tag">場景：開啟觀測設備中...</div>
-        
-        <div id="reader-dup" style="display:none;"></div> <div class="custom-dialogue-container" style="position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 90%;">
+        <div id="reader-dup" style="display:none;"></div> 
+        <div class="custom-dialogue-container" style="position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 90%;">
             <div class="custom-speaker-name">系統提示</div>
             <div class="custom-dialogue-text">「請將相機對準展區對應的『老相機時空痕跡（QR Code）』進行掃描。」</div>
         </div>
-
         <button onclick="stopCamera('scene-level2-hint')" style="position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; padding: 10px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 30;">🛑 關閉觀測設備</button>
     </div>
     
     <!-- 9. 第二關：情報員安娜登場 -->
-<div id="scene-level2-dialogue" class="scene dialogue-scene" onclick="nextScene('scene-level3-quiz')">
+    <div id="scene-level2-dialogue" class="scene dialogue-scene" onclick="nextScene('scene-level3-quiz')">
         <div class="location-tag">場景：「新秩序下」展區</div>
-        
         <div class="custom-character-anna" style="background-image: url('anna_1.png');"></div>
-
         <div class="custom-dialogue-container">
             <div class="custom-speaker-name">情報員 · 安娜</div>
             <div class="custom-dialogue-text">「噓！小聲點。現在是文明開發的年代，規矩多得很。我剛剛從照向館偷到了這批『化學感光劑』，這可是高價的貿易品。但要拿走最後一枚銀幣，你們得幫我解開這段被查禁的文字。」</div>
@@ -591,12 +425,12 @@ body, html {
         </div>
     </div>
 
-    <!-- 10. 第三關：終極解密（文字看板謎題替代） -->
-    <div id="scene-level3-quiz" class="scene" style="background:#34495e;">
+    <!-- 10. 第三關：終極解密 -->
+    <div id="scene-level3-quiz" class="scene">
         <div class="location-tag">場景：特定文字看板前</div>
         <div class="quiz-container">
             <p style="color:#f1c40f; margin-bottom: 10px; font-size:0.9rem;">【歷史空白處解密】</p>
-            <div class="quiz-question">
+            <div style="color: #fff; line-height: 1.5; font-size: 0.95rem; margin-bottom: 20px;">
                 安娜指著看板上的殘缺句子：<br>
                 <b style="color:#e74c3c;">「大正十年的＿＿＿＿＿運動，是台灣人爭取權利的開端。」</b><br><br>
                 <small style="color:#bdc3c7;">(臨時測試謎題：蘋果是什麼顏色？)</small>
@@ -607,29 +441,26 @@ body, html {
     </div>
 
     <!-- 11. 第三關：解開後的對話 -->
-<div id="scene-level3-dialogue" class="scene dialogue-scene">
+    <div id="scene-level3-dialogue" class="scene dialogue-scene">
         <div class="location-tag">場景：歷史的真相拼湊完成</div>
-        
         <div class="custom-character-anna" style="background-image: url('anna_2.png');"></div>
-
-<div class="custom-end-trigger-btn" onclick="nextScene('scene-ending-movie')">
+        <div class="custom-end-trigger-btn" onclick="nextScene('scene-ending-movie')">
             <img src="結局.png" alt="啟動時空裝置">
         </div>
-
         <div class="custom-dialogue-container">
             <div class="custom-speaker-name">情報員 · 安娜</div>
             <div class="custom-dialogue-text">「做得好！長官，歷史的真相已經拼湊完成。最後一枚銀幣拿去吧！時空座標設定完畢，點擊上方的時空裝置，我們的撤離船即將抵達！」</div>
-            </div>
+        </div>
     </div>
-<div id="scene-ending-movie" class="scene dialogue-scene" onclick="nextScene('scene-end')">
+
+    <!-- 12. 結局動畫場景 -->
+    <div id="scene-ending-movie" class="scene dialogue-scene" onclick="nextScene('scene-end')">
         <div class="location-tag">場景：2F 廊道盡頭 (走向民主之路)</div>
-        
         <div class="custom-character-trio-container">
             <div class="trio-member member-hans" style="background-image: url('Hans_1.png');"></div>
             <div class="trio-member member-peter" style="background-image: url('peter_1.png');"></div>
             <div class="trio-member member-anna" style="background-image: url('anna_1.png');"></div>
         </div>
-
         <div class="custom-dialogue-container">
             <div class="custom-speaker-name">眾人</div>
             <div class="custom-dialogue-text"><br>「感謝您，指揮官。這趟從 17 世紀跨越到 20 世紀的旅程，讓我們見證了這座島嶼的韌性。期待在未來的歷史中與您再次相遇。」</div>
@@ -645,228 +476,192 @@ body, html {
             畫面變回臺史博的現代全景。<br>
             感謝參與本次測試！
         </p>
-  <button class="btn-restart" onclick="restartGame()">重新開始行動</button>
+        <button class="btn-restart" onclick="restartGame()" style="padding: 10px 25px; background: #e67e22; border: none; color: #fff; font-weight: bold; border-radius: 20px; cursor: pointer; font-size: 1rem;">重新開始行動</button>
     </div>
 
     <!-- 獎勵彈窗 Overlay -->
     <div id="reward-pop" class="reward-overlay">
         <h2 id="reward-title" style="color: #f1c40f; margin-bottom: 20px;">🎉 尋獲目標！</h2>
-        <div id="reward-details">
-            <!-- 動態插入獎勵內容 -->
-        </div>
+        <div id="reward-details"></div>
         <button class="btn" style="margin-top: 30px; background:#2ecc71; border-color:#27ae60;" onclick="closeReward()">解鎖後續對話</button>
     </div>
 
 </div>
 
 <script>
-// =============================================
-// ⚙️ 核心遊戲狀態與相機/場景控制（全功能完美修正版）
-// =============================================
-let html5QrcodeScanner = null;
-let prologueIdx = 0;
-let currentRewardType = 1;
+    let currentRewardType = 1;
+    let html5QrcodeScanner = null;
+    let prologueIdx = 0;
 
-// 序章多步驟對話劇本設定
-const prologueScript = [
-    { name: "系統", text: "（螢幕出現強烈雜訊...）" },
-    { name: "導航員 · 漢斯", text: "「長官！您終於連上線了！時空震盪把我們縮小並拋到了幾百年後的『大員』。」" },
-    { name: "導航員 · 漢斯", text: "「雖然這裡變了很多，但只要找回當初遺失的里爾銀幣，我們就能向總部發送座標撤離！」" },
-    { name: "導航員 · 漢斯", text: "「請在我的指引下，於『倚海而生的島與人』展區找到第一枚銀幣，並進行第一次『時空搖晃』！」" }
-];
+    const prologueScript = [
+        { name: "系統", text: "（螢幕出現強烈雜訊...）" },
+        { name: "導航員 · 漢斯", text: "「長官！您終於連上線了！時空震盪把我們縮小並拋到了幾百年後的『大員』。」" },
+        { name: "導航員 · 漢斯", text: "「雖然這裡變了很多，但只要找回當初遺失的里爾銀幣，我們就能向總部發送座標撤離！」" },
+        { name: "導航員 · 漢斯", text: "「請在我的指引下，於『倚海而生的島與人』展區找到第一枚銀幣，並進行第一次『時空搖晃』！」" }
+    ];
 
-// 🎯 【唯一且完美的場景切換功能】合體修正版
-function nextScene(sceneId) {
-    // 1. 隱藏所有場景（清除舊的 active 標籤並強制隱藏，雙重保險防穿透）
-    document.querySelectorAll('.scene').forEach(s => {
-        s.classList.remove('active');
-        s.style.display = 'none';
-    });
-    
-    // 2. 秀出目標場景
-    const nextSceneEl = document.getElementById(sceneId);
-    if (nextSceneEl) {
-        nextSceneEl.classList.add('active');
+    // 🎯 統一的場景切換核心邏輯（完美修正重複宣告與錯字）
+    function nextScene(sceneId) {
+        // 使用你原本最穩定的 active class 機制
+        const scenes = document.querySelectorAll('.scene');
+        scenes.forEach(scene => scene.classList.remove('active'));
         
-        // 🎯 修正：如果是第三關謎題，用 flex 居中；其他關卡用預設的 flex/block 即可
-        if (sceneId === 'scene-level3-quiz') {
-            nextSceneEl.style.display = 'flex'; 
-        } else {
-            nextSceneEl.style.display = ''; // 恢復 CSS 原生設定
+        const nextSceneEl = document.getElementById(sceneId);
+        if (nextSceneEl) {
+            nextSceneEl.classList.add('active');
         }
-    }
 
-    // 🚀 核心相機動態搬移與啟動邏輯
-    if (sceneId === 'scene-level1-scan') {
-        startCamera('WATER_BUFFALO', 'reader');
-    } else if (sceneId === 'scene-level2-scan') {
-        // 💡 當進入第二關掃描時，自動把第一關的 #reader 搬移到第二關的畫面裡
-        const readerTarget = document.getElementById('reader');
-        const level2Scene = document.getElementById('scene-level2-scan');
-        if (readerTarget && level2Scene) {
-            level2Scene.insertBefore(readerTarget, level2Scene.firstChild);
-        }
-        startCamera('OLD_CAMERA', 'reader');
-    }
-}
-
-// 🧭 序章對話點擊更新
-function updateDialogueScreen() {
-    const currentLine = prologueScript[prologueIdx];
-    document.getElementById('prologue-speaker').innerText = currentLine.name;
-    document.getElementById('prologue-text').innerText = currentLine.text;
-}
-
-function prologueNextClick() {
-    prologueIdx++;
-    if (prologueIdx < prologueScript.length) {
-        updateDialogueScreen();
-        
-        // 漢斯表情切換
-        const hansElement = document.getElementById('hans-character');
-        if (prologueScript[prologueIdx].name === "導航員 · 漢斯") {
-            hansElement.style.backgroundImage = "url('Hans_2.png')";
-        } else {
-            hansElement.style.backgroundImage = "url('Hans_1.png')";
-        }
-    } else {
-        nextScene('scene-level1-hint'); 
-    }
-}
-
-// 🎁 獎勵視窗控制
-function showReward(type) {
-    currentRewardType = type;
-    const details = document.getElementById('reward-details');
-    const title = document.getElementById('reward-title');
-    
-    if(type === 1) {
-        title.innerText = "🎉 尋獲目標！";
-        details.innerHTML = `
-            <div style="margin:5px 0;">🤝 登錄員工：搬運工 · 皮特</div>
-            <div style="margin:5px 0;">🌾 獲得補給：【精選農產品】</div>
-            <div style="margin:5px 0;">🪙 獲得關鍵道具：第二枚里爾銀幣</div>
-        `;
-    } else if(type === 2) {
-        title.innerText = "🎉 成功接頭！";
-        details.innerHTML = `
-            <div style="margin:5px 0;">🤝 登錄員工：情報員 · 安娜</div>
-            <div style="margin:5px 0;">🎞️ 獲得物資：【化學感光劑】</div>
-            <div style="margin:5px 0;">⚠️ 警告：最後一枚銀幣遭到時空鎖定</div>
-        `;
-    }
-    document.getElementById('reward-pop').style.display = 'flex';
-}
-
-function closeReward() {
-    document.getElementById('reward-pop').style.display = 'none';
-    if(currentRewardType === 1) {
-        nextScene('scene-level1-dialogue');
-    } else {
-        nextScene('scene-level2-dialogue');
-    }
-}
-
-// 🧩 謎題答案檢查
-function checkAnswer(isCorrect) {
-    if(isCorrect) {
-        alert("🎯 解密成功！關鍵文字已填補！");
-        nextScene('scene-level3-dialogue');
-    } else {
-        alert("❌ 文字無法產生共鳴...（答錯囉，再試一次！）");
-    }
-}
-
-// 📸 啟動相機掃描
-function startCamera(targetAnswer, elementId) {
-    if (html5QrcodeScanner) {
-        try {
-            html5QrcodeScanner.clear();
-        } catch(e) {
-            console.log("忽略清除異常");
-        }
-    }
-
-    html5QrcodeScanner = new Html5Qrcode(elementId);
-    const config = { fps: 10, qrbox: { width: 230, height: 230 } };
-
-    html5QrcodeScanner.start(
-        { facingMode: "environment" },
-        config,
-        (decodedText, decodedResult) => {
-            console.log(`掃描到文字: ${decodedText}`);
-            if (decodedText.trim().toUpperCase() === targetAnswer.toUpperCase()) {
-                
-                // 掃描成功後彈出對應的精美獎勵視窗，不直接跳關
-                html5QrcodeScanner.stop().then(() => {
-                    html5QrcodeScanner.clear();
-                    if (targetAnswer === 'WATER_BUFFALO') {
-                        showReward(1); // 叫出皮特的獎勵彈窗
-                    } else if (targetAnswer === 'OLD_CAMERA') {
-                        showReward(2); // 叫出安娜的獎勵彈窗
-                    }
-                }).catch(err => {
-                    html5QrcodeScanner.clear();
-                    if (targetAnswer === 'WATER_BUFFALO') showReward(1);
-                    if (targetAnswer === 'OLD_CAMERA') showReward(2);
-                });
-            } else {
-                alert("❌ 警告：此處非目標殘留痕跡，時空坐標不符，請重新尋找！");
+        // 📸 核心相機動態搬移與啟動
+        if (sceneId === 'scene-level1-scan') {
+            startCamera('WATER_BUFFALO', 'reader');
+        } else if (sceneId === 'scene-level2-scan') {
+            const readerTarget = document.getElementById('reader');
+            const level2Scene = document.getElementById('scene-level2-scan');
+            if (readerTarget && level2Scene) {
+                level2Scene.insertBefore(readerTarget, level2Scene.firstChild);
             }
-        },
-        (errorMessage) => {}
-    ).catch((err) => {
-        console.error("相機開啟失敗:", err);
-    });
-}
-
-// 🛑 手動關閉相機
-function stopCamera(returnSceneId) {
-    if (html5QrcodeScanner) {
-        html5QrcodeScanner.stop().then(() => {
-            html5QrcodeScanner.clear();
-            nextScene(returnSceneId || 'scene-level1-hint'); 
-        }).catch(err => {
-            html5QrcodeScanner.clear();
-            nextScene(returnSceneId || 'scene-level1-hint');
-        });
-    } else {
-        nextScene(returnSceneId || 'scene-level1-hint');
-    }
-}
-
-// 🔄 徹底安全重置遊戲（相機歸位、序章重置）
-function restartGame() {
-    if (html5QrcodeScanner) {
-        try {
-            html5QrcodeScanner.clear();
-        } catch(e) {
-            console.log("重啟清除相機異常，忽略");
+            startCamera('OLD_CAMERA', 'reader');
         }
     }
-    
-    // 1. 關鍵歸位：把 #reader 安全移回第一關（水牛）的畫面
-    const readerTarget = document.getElementById('reader');
-    const level1Scene = document.getElementById('scene-level1-scan');
-    if (readerTarget && level1Scene) {
-        level1Scene.insertBefore(readerTarget, level1Scene.firstChild); 
-    }
-    
-    // 2. 重置對話與變數狀態
-    prologueIdx = 0;
-    currentRewardType = 1;
-    
-    // 3. 更新一下序章第一句話的文字
-    updateDialogueScreen();
-    const hansElement = document.getElementById('hans-character');
-    if (hansElement) hansElement.style.backgroundImage = "url('Hans_1.png')";
-    
-    // 4. 返回開頭封面（scene-start）
-    nextScene('scene-start'); 
-    
-    alert("⏳ 時空座標已安全重設，撤離行動可以重新開始了！");
-}
 
+    function updateDialogueScreen() {
+        const currentLine = prologueScript[prologueIdx];
+        document.getElementById('prologue-speaker').innerText = currentLine.name;
+        document.getElementById('prologue-text').innerText = currentLine.text;
+    }
+
+    function prologueNextClick() {
+        prologueIdx++;
+        if (prologueIdx < prologueScript.length) {
+            updateDialogueScreen();
+            const hansElement = document.getElementById('hans-character');
+            if (prologueScript[prologueIdx].name === "導航員 · 漢斯") {
+                hansElement.style.backgroundImage = "url('Hans_2.png')";
+            } else {
+                hansElement.style.backgroundImage = "url('Hans_1.png')";
+            }
+        } else {
+            nextScene('scene-level1-hint'); 
+        }
+    }
+
+    function showReward(type) {
+        currentRewardType = type;
+        const details = document.getElementById('reward-details');
+        const title = document.getElementById('reward-title');
+        
+        if(type === 1) {
+            title.innerText = "🎉 尋獲目標！";
+            details.innerHTML = `
+                <div style="margin:5px 0;">🤝 登錄員工：搬運工 · 皮特</div>
+                <div style="margin:5px 0;">🌾 獲得補給：【精選農產品】</div>
+                <div style="margin:5px 0;">🪙 獲得關鍵道具：第二枚里爾銀幣</div>
+            `;
+        } else if(type === 2) {
+            title.innerText = "🎉 成功接頭！";
+            details.innerHTML = `
+                <div style="margin:5px 0;">🤝 登錄員工：情報員 · 安娜</div>
+                <div style="margin:5px 0;">🎞️ 獲得物資：【化學感光劑】</div>
+                <div style="margin:5px 0;">⚠️ 警告：最後一枚銀幣遭到時空鎖定</div>
+            `;
+        }
+        document.getElementById('reward-pop').style.display = 'flex';
+    }
+
+    function closeReward() {
+        document.getElementById('reward-pop').style.display = 'none';
+        if(currentRewardType === 1) {
+            nextScene('scene-level1-dialogue');
+        } else {
+            nextScene('scene-level2-dialogue');
+        }
+    }
+
+    function checkAnswer(isCorrect) {
+        if(isCorrect) {
+            alert("解密成功！關鍵文字已填補！");
+            nextScene('scene-level3-dialogue');
+        } else {
+            alert("文字無法產生共鳴...（答錯囉，再試一次！）");
+        }
+    }
+
+    // 📸 啟動相機
+    function startCamera(targetAnswer, elementId) {
+        if (html5QrcodeScanner) {
+            try { html5QrcodeScanner.clear(); } catch(e) { console.log("忽略清除異常"); }
+        }
+
+        html5QrcodeScanner = new Html5Qrcode(elementId);
+        const config = { fps: 10, qrbox: { width: 230, height: 230 } };
+
+        html5QrcodeScanner.start(
+            { facingMode: "environment" },
+            config,
+            (decodedText, decodedResult) => {
+                if (decodedText.trim().toUpperCase() === targetAnswer.toUpperCase()) {
+                    alert("🎯 偵測到正確的時空波動！成功捕獲目標！");
+                    html5QrcodeScanner.stop().then(() => {
+                        html5QrcodeScanner.clear();
+                        if (targetAnswer === 'WATER_BUFFALO') {
+                            showReward(1); // 觸發獲得皮特銀幣彈窗
+                        } else if (targetAnswer === 'OLD_CAMERA') {
+                            showReward(2); // 觸發獲得安娜彈窗
+                        }
+                    }).catch(err => {
+                        html5QrcodeScanner.clear();
+                        if (targetAnswer === 'WATER_BUFFALO') showReward(1);
+                        if (targetAnswer === 'OLD_CAMERA') showReward(2);
+                    });
+                } else {
+                    alert("❌ 警告：此處非目標殘留痕跡，時空坐標不符，請重新尋找！");
+                }
+            },
+            (errorMessage) => {}
+        ).catch((err) => {
+            console.error("相機啟動防禦:", err);
+        });
+    }
+
+    // 🛑 手動關閉相機
+    function stopCamera(returnSceneId) {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.stop().then(() => {
+                html5QrcodeScanner.clear();
+                nextScene(returnSceneId || 'scene-level1-hint'); 
+            }).catch(err => {
+                html5QrcodeScanner.clear();
+                nextScene(returnSceneId || 'scene-level1-hint');
+            });
+        } else {
+            nextScene(returnSceneId || 'scene-level1-hint');
+        }
+    }
+
+    // 🔄 徹底完美重新開始遊戲（歸位、重設、不失效）
+    function restartGame() {
+        // 1. 安全關閉並清除相機元件
+        if (html5QrcodeScanner) {
+            try { html5QrcodeScanner.clear(); } catch(e) { console.log("重啟清除異常"); }
+        }
+        
+        // 2. 核心大歸位：把 #reader 安全移回第一關
+        const readerTarget = document.getElementById('reader');
+        const level1Scene = document.getElementById('scene-level1-scan');
+        if (readerTarget && level1Scene) {
+            level1Scene.insertBefore(readerTarget, level1Scene.firstChild); 
+        }
+        
+        // 3. 重設序章對話狀態
+        prologueIdx = 0;
+        updateDialogueScreen();
+        const hansElement = document.getElementById('hans-character');
+        if (hansElement) hansElement.style.backgroundImage = "url('Hans_1.png')";
+        
+        // 4. 返回開頭畫面
+        nextScene('scene-start'); 
+        alert("⏳ 時空坐標已重設，撤離行動重頭開始！");
+    }
 </script>
 
 </body>
