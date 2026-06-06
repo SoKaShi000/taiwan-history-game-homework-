@@ -340,7 +340,7 @@ body, html {
 .reward-display-container {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 15px;
     margin: 20px 0;
     width: 100%;
 }
@@ -349,18 +349,18 @@ body, html {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
     padding: 10px;
-    width: 110px;
+    width: 105px;
     text-align: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 .item-card img {
-    width: 80px;
-    height: 80px;
+    width: 75px;
+    height: 75px;
     object-fit: contain;
     filter: drop-shadow(0px 2px 5px rgba(0,0,0,0.5));
 }
 .item-card p {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #ffd700;
     margin-top: 5px;
     font-weight: bold;
@@ -371,14 +371,12 @@ body, html {
 
 <div id="game-container">
 
-    <!-- 1. 開始介面 -->
     <div id="scene-start" class="scene active">
         <div class="title">時空遺珠</div>
         <div class="subtitle">VOC 府城撤離行動</div>
         <button class="btn" onclick="nextScene('scene-prologue-dialogue')">開啟觀測設備</button>
     </div>
 
-    <!-- 3. 序章：對話介面 -->
     <div id="scene-prologue-dialogue" class="scene dialogue-scene" onclick="prologueNextClick()">
         <div class="location-tag">場景：2F 入口「大員港口」</div>
         <div id="hans-character" class="custom-character-hans"></div> 
@@ -389,7 +387,6 @@ body, html {
         </div>
     </div>
 
-    <!-- 4. 第一關提示 -->
     <div id="scene-level1-hint" class="scene dialogue-scene" onclick="nextScene('scene-level1-scan')">
         <div class="location-tag">場景：「山海之間的共存與競逐」</div>
         <div class="custom-character-hans" style="background-image: url('Hans_2.png');"></div>
@@ -400,7 +397,6 @@ body, html {
         </div>
     </div>
 
-    <!-- 5. 第一關：掃描介面 -->
     <div id="scene-level1-scan" class="scene dialogue-scene">
         <div class="location-tag">場景：開啟觀測設備中...</div>
         <div id="reader"></div>
@@ -411,18 +407,16 @@ body, html {
         <button onclick="stopCamera('scene-level1-hint')" style="position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; padding: 10px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 30;">🛑 關閉觀測設備</button>
     </div>
 
-    <!-- 6. 第一關：角色登場對話 -->
     <div id="scene-level1-dialogue" class="scene dialogue-scene" onclick="nextScene('scene-level2-hint')">
         <div class="location-tag">場景：水牛腳邊的草叢</div>
         <div class="custom-character-peter" style="background-image: url('peter_2.png');"></div>
         <div class="custom-dialogue-container">
             <div class="custom-speaker-name">搬運工 · 皮特</div>
-            <div class="custom-dialogue-text">「嘿！我正載著這批要出口的稻米呢！多虧長官找到這頭大水牛，不然我差點在泥沼裡迷路了。這枚銀幣也一併交給您吧！」</div>
+            <div class="custom-dialogue-text">「嘿！我正載著這批要出口的稻米呢！多虧長官找到這头大水牛，不然我差點在泥沼裡迷路了。這枚時空銀幣也一併交給您吧！」</div>
             <div class="custom-next-tip">▼</div>
         </div>
     </div>
 
-    <!-- 7. 第二關：提示尋找老相機 -->
     <div id="scene-level2-hint" class="scene dialogue-scene" onclick="nextScene('scene-level2-scan')">
         <div class="location-tag">場景：「新秩序下的苦悶與夢想」</div>
         <div class="custom-character-peter" style="background-image: url('peter_1.png');"></div>
@@ -433,7 +427,6 @@ body, html {
         </div>
     </div>
 
-    <!-- 8. 第二關：掃描老相機 QRcode -->
     <div id="scene-level2-scan" class="scene dialogue-scene">
         <div class="location-tag">場景：開啟觀測設備中...</div>
         <div id="reader-dup" style="display:none;"></div> 
@@ -444,18 +437,16 @@ body, html {
         <button onclick="stopCamera('scene-level2-hint')" style="position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 85%; padding: 10px; background: #ff4d4d; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 30;">🛑 關閉觀測設備</button>
     </div>
     
-    <!-- 9. 第二關：情報員安娜登場 -->
     <div id="scene-level2-dialogue" class="scene dialogue-scene" onclick="nextScene('scene-level3-quiz')">
         <div class="location-tag">場景：「新秩序下」展區</div>
         <div class="custom-character-anna" style="background-image: url('anna_1.png');"></div>
         <div class="custom-dialogue-container">
             <div class="custom-speaker-name">情報員 · 安娜</div>
-            <div class="custom-dialogue-text">「噓！小聲點。現在是文明開發的年代，規矩多得很。我剛剛從照向館偷到了這批『化學感光劑』，這可是高價的貿易品。但要拿走最後一枚銀幣，你們得幫我解開這段被查禁的文字。」</div>
+            <div class="custom-dialogue-text">「噓！小聲點。現在是文明開發的年代，規矩多得很。我剛剛從照向館偷到了這批『化學感光劑』，這可是高價的貿易品。但要拿走最後一枚時空銀幣，你們得幫我解開這段被查禁的文字。」</div>
             <div class="custom-next-tip">▼</div>
         </div>
     </div>
 
-    <!-- 10. 第三關：終極解密 -->
     <div id="scene-level3-quiz" class="scene">
         <div class="location-tag">場景：特定文字看板前</div>
         <div class="quiz-container">
@@ -470,7 +461,6 @@ body, html {
         </div>
     </div>
 
-    <!-- 11. 第三關：解開後的對話 -->
     <div id="scene-level3-dialogue" class="scene dialogue-scene">
         <div class="location-tag">場景：歷史的真相拼湊完成</div>
         <div class="custom-character-anna" style="background-image: url('anna_2.png');"></div>
@@ -479,11 +469,10 @@ body, html {
         </div>
         <div class="custom-dialogue-container">
             <div class="custom-speaker-name">情報員 · 安娜</div>
-            <div class="custom-dialogue-text">「做得好！長官，歷史的真相已經拼湊完成。最後一枚銀幣拿去吧！時空座標設定完畢，點擊上方的時空裝置，我們的撤離船即將抵達！」</div>
+            <div class="custom-dialogue-text">「做得好！長官，歷史的真相已經拼湊完成。最後一枚時空銀幣拿去吧！時空座標設定完畢，點擊上方的時空裝置，我們的撤離船即將抵達！」</div>
         </div>
     </div>
 
-    <!-- 12. 結局動畫場景 -->
     <div id="scene-ending-movie" class="scene dialogue-scene" onclick="nextScene('scene-end')">
         <div class="location-tag">場景：2F 廊道盡頭 (走向民主之路)</div>
         <div class="custom-character-trio-container">
@@ -498,7 +487,6 @@ body, html {
         </div>
     </div>
 
-    <!-- 13. 遊戲結束畫面 -->
     <div id="scene-end" class="scene">
         <div class="title" style="font-size: 1.6rem;">再見，大員</div>
         <div class="subtitle" style="font-size: 0.9rem; color:#bdc3c7; margin-bottom:20px;">時空門已關閉</div>
@@ -509,12 +497,10 @@ body, html {
         <button class="btn-restart" onclick="restartGame()" style="padding: 10px 25px; background: #e67e22; border: none; color: #fff; font-weight: bold; border-radius: 20px; cursor: pointer; font-size: 1rem;">重新開始行動</button>
     </div>
 
-    <!-- 🔮 升級版：動態道具注入型獎勵彈窗 Overlay -->
     <div id="reward-pop" class="reward-overlay">
         <h2 id="reward-title" style="color: #f1c40f; margin-bottom: 10px; letter-spacing: 1px;">🎉 尋獲目標！</h2>
         <p style="color: #bdc3c7; font-size: 0.9rem; margin-bottom: 15px;">成功回收時空對應物件</p>
         
-        <!-- 🎯 圖片與道具資訊會由 JavaScript 動態塞進這裡 -->
         <div id="reward-details" style="width: 100%;"></div>
         
         <button class="btn" style="margin-top: 25px; background:#2ecc71; border-color:#27ae60;" onclick="closeReward()">解鎖後續對話</button>
@@ -530,8 +516,8 @@ body, html {
     const prologueScript = [
         { name: "系統", text: "（螢幕出現強烈雜訊...）" },
         { name: "導航員 · 漢斯", text: "「長官！您終於連上線了！時空震盪把我們縮小並拋到了幾百年後的『大員』。」" },
-        { name: "導航員 · 漢斯", text: "「雖然這裡變了很多，但只要找回當初遺失的里爾銀幣，我們就能向總部發送座標撤離！」" },
-        { name: "導航員 · 漢斯", text: "「請在我的指引下，於『倚海而生的島與人』展區找到第一枚銀幣，並進行第一次『時空搖晃』！」" }
+        { name: "導航員 · 漢斯", text: "「雖然這裡變了很多，但只要找回當初遺失的時空銀幣，我們就能向總部發送座標撤離！」" },
+        { name: "導航員 · 漢斯", text: "「請在我的指引下，於『倚海而生的島與人』展區找到第一枚時空銀幣，並進行第一次『時空搖晃』！」" }
     ];
 
     function nextScene(sceneId) {
@@ -576,7 +562,7 @@ body, html {
         }
     }
 
-    // 🎯 核心改動：在這裡直接將 "農作物.png", "銀幣.png", "底片.png" 當作實體檔案載入
+    // 🎯 核心改動：更新彈出道具卡片排版
     function showReward(type) {
         currentRewardType = type;
         const details = document.getElementById('reward-details');
@@ -591,8 +577,8 @@ body, html {
                         <p>精選農產品</p>
                     </div>
                     <div class="item-card">
-                        <img src="銀幣.png" alt="銀幣">
-                        <p>里爾銀幣</p>
+                        <img src="銀幣.png" alt="時空銀幣">
+                        <p>時空銀幣</p>
                     </div>
                 </div>
                 <div style="text-align: center; font-size: 0.95rem; line-height: 1.6; color: #fff;">
@@ -605,13 +591,17 @@ body, html {
             details.innerHTML = `
                 <div class="reward-display-container">
                     <div class="item-card">
+                        <img src="相機.png" alt="復古相機">
+                        <p>復古相機</p>
+                    </div>
+                    <div class="item-card">
                         <img src="底片.png" alt="底片">
                         <p>化學感光劑</p>
                     </div>
                 </div>
                 <div style="text-align: center; font-size: 0.95rem; line-height: 1.6; color: #fff;">
                     <span style="color: #3498db;">🤝 成功對接線人：</span><b>情報員 · 安娜</b><br>
-                    <span>成功取得稀有的感光底片資產！</span>
+                    <span>獲得精準觀測設備與稀有的感光底片資產！</span>
                 </div>
             `;
         }
