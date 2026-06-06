@@ -731,57 +731,103 @@ body, html {
 
     let html5QrcodeScanner = null;
 
-// 📸 啟動相機掃描
+// 📸 啟動相機掃描（修正高相容性版本）
 function startCamera(targetAnswer) {
     if (html5QrcodeScanner) {
-        html5QrcodeScanner.clear();
+        // 如果正在執行，先嘗試停止並清除，避免重複佔用裝置
+        html5QrcodeScanner.stop().then(() => {
+            html5QrcodeScanner.clear();
+            initAndStartScanner(targetAnswer);
+        }).catch(() => {
+            html5QrcodeScanner.clear();
+            initAndStartScanner(targetAnswer);
+        });
+    } else {
+        initAndStartScanner(targetAnswer);
     }
+}
 
-    // 初始化掃描器
+// 實際初始化與啟動鏡頭
+function initAndStartScanner(targetAnswer) {
     html5QrcodeScanner = new Html5Qrcode("reader");
     
-    // 調整設定：提高幀率(fps)到 15，並縮小辨識焦距框，讓手機更容易對焦成功
+    // 最佳化掃描框與偵測率
     const config = { 
-        fps: 15, 
+        fps: 20, // 提高幀率讓對焦更靈敏
         qrbox: function(viewfinderWidth, viewfinderHeight) {
-            // 動態計算掃描框，避免大於容器
             const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-            const qrboxSize = Math.floor(minEdge * 0.7);
+            const qrboxSize = Math.floor(minEdge * 0.75); // 讓掃描框適中
             return { width: qrboxSize, height: qrboxSize };
         }
     };
 
-    // 開始叫用鏡頭
-    html5QrcodeScanner.start(
-        { facingMode: "environment" }, // 強制指定後置鏡頭
-        config,
-        (decodedText, decodedResult) => {
-            // 🎯 【掃描成功判定】
-            console.log(`掃描成功: ${decodedText}`);
+    // 🚀 建立鏡頭順序清單：1.環境後鏡頭 2.預設使用者/任何鏡頭 (防呆機制)
+    Html5Qrcode.getCameras().then(devices => {
+        if (devices && devices.length > 0) {
+            // 優先尋找名稱包含 back, rear, environment 的後置鏡頭
+            let backCamera = devices.find(device => 
+                device.label.toLowerCase().includes('back') || 
+                device.label.toLowerCase().includes('rear') ||
+                device.label.toLowerCase().includes('environment')
+            );
             
-            // 忽略大小寫與前後空格的嚴格比對
-            if (decodedText.trim().toUpperCase() === targetAnswer.toUpperCase()) {
-                alert("🎯 偵測到正確的時空波動！成功捕獲目標！");
-                
-                // 關閉相機並切換場景
-                html5QrcodeScanner.stop().then(() => {
-                    if (targetAnswer === 'WATER_BUFFALO') {
-                        nextScene('scene-level1-dialogue');
-                    } else if (targetAnswer === 'OLD_CAMERA') {
-                        nextScene('scene-level2-dialogue');
-                    }
-                }).catch(err => console.error(err));
-            } else {
-                alert("❌ 警告：此處時空坐標不符，非目標殘留痕跡！");
-            }
-        },
-        (errorMessage) => {
-            // 掃描過程中的常態模糊或無條碼狀態，保持安靜不跳錯誤
+            // 如果找到了特定的後鏡頭就用它，找不到就用清單中最後一個鏡頭（通常手機最後一個是後鏡頭）
+            let cameraId = backCamera ? backCamera.id : devices[devices.length - 1].id;
+
+            html5QrcodeScanner.start(
+                cameraId,
+                config,
+                (decodedText) => { handleScanSuccess(decodedText, targetAnswer); },
+                (errorMessage) => { /* 忽略常態模糊錯誤 */ }
+            ).catch(err => {
+                // 如果指定 cameraId 失敗，使用最普遍的原生備用手段
+                fallbackStart(config, targetAnswer);
+            });
+        } else {
+            // 完全讀不到裝置清單時，直接嘗試原生環境呼叫
+            fallbackStart(config, targetAnswer);
         }
-    ).catch((err) => {
-        console.error("相機啟動失敗原因:", err);
-        alert("無法開啟相機！\n\n💡 請檢查以下原因：\n1. 網頁是否使用安全連線 (HTTPS) 開啟？\n2. 是否允許了瀏覽器的相機權限？");
+    }).catch(err => {
+        fallbackStart(config, targetAnswer);
     });
+}
+
+// 🔄 備用啟動方案：當精確抓取鏡頭識別碼失敗時觸發
+function fallbackStart(config, targetAnswer) {
+    html5QrcodeScanner.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => { handleScanSuccess(decodedText, targetAnswer); },
+        (errorMessage) => { /* 忽略常態錯誤 */ }
+    ).catch(err => {
+        console.error("相機完全無法啟動:", err);
+        alert("無法喚醒相機設備。\n\n請確認：\n1. 網址開頭必須是 https://\n2. 是否封鎖了瀏覽器的相機權限（可到手機設定中檢查）。");
+    });
+}
+
+// 🎯 統一的掃描成功判定邏輯
+function handleScanSuccess(decodedText, targetAnswer) {
+    console.log(`掃描到內容: ${decodedText}`);
+    
+    if (decodedText.trim().toUpperCase() === targetAnswer.toUpperCase()) {
+        alert("🎯 偵測到正確的時空波動！成功捕獲目標！");
+        
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.stop().then(() => {
+                if (targetAnswer === 'WATER_BUFFALO') {
+                    nextScene('scene-level1-dialogue');
+                } else if (targetAnswer === 'OLD_CAMERA') {
+                    nextScene('scene-level2-dialogue');
+                }
+            }).catch(err => {
+                // 即使停止出錯也強制切換，確保遊戲不卡死
+                if (targetAnswer === 'WATER_BUFFALO') nextScene('scene-level1-dialogue');
+                if (targetAnswer === 'OLD_CAMERA') nextScene('scene-level2-dialogue');
+            });
+        }
+    } else {
+        alert("❌ 警告：此處時空坐標不符，非目標殘留痕跡！");
+    }
 }
 
     // 重置遊戲
