@@ -447,20 +447,23 @@ body, html {
         </div>
     </div>
 
-    <div id="scene-level3-quiz" class="scene">
+   <div id="scene-level3-quiz" class="scene">
         <div class="location-tag">場景：特定文字看板前</div>
         <div class="quiz-container">
             <p style="color:#f1c40f; margin-bottom: 10px; font-size:0.9rem;">【歷史空白處解密】</p>
             <div style="color: #fff; line-height: 1.5; font-size: 0.95rem; margin-bottom: 20px;">
                 安娜指著看板上的殘缺句子：<br>
-                <b style="color:#e74c3c;">「大正十年的＿＿＿＿＿運動，是台灣人爭取權利的開端。」</b><br><br>
-                <small style="color:#bdc3c7;">(臨時測試謎題：蘋果是什麼顏色？)</small>
+                <b style="color:#e74c3c; font-size: 1.05rem;">「大正十年的＿＿＿＿＿運動，是台灣人爭取權利的開端。」</b><br><br>
+                <small style="color:#bdc3c7;">(請在展場牆面上尋找關鍵字，選出正確的填入詞匯)</small>
             </div>
-            <button class="btn" style="background:#7f8c8d;" onclick="checkAnswer(false)">彩色</button>
-            <button class="btn" style="background:#2ecc71;" onclick="checkAnswer(true)">紅色</button>
+            
+            <!-- 選擇題按鈕（三個錯誤答案，一個正確答案） -->
+            <button class="btn" style="background:#34495e; margin-bottom: 10px; width: 100%; text-align: left; padding: 12px;" onclick="checkAnswer(false)">Ａ）台灣民主國</button>
+            <button class="btn" style="background:#34495e; margin-bottom: 10px; width: 100%; text-align: left; padding: 12px;" onclick="checkAnswer(false)">Ｂ）六三法撤廢</button>
+            <button class="btn" style="background:#34495e; margin-bottom: 10px; width: 100%; text-align: left; padding: 12px;" onclick="checkAnswer(true)">Ｃ）台灣議會設置請願</button>
+            <button class="btn" style="background:#34495e; margin-bottom: 10px; width: 100%; text-align: left; padding: 12px;" onclick="checkAnswer(false)">Ｄ）台灣文化協會</button>
         </div>
     </div>
-
     <div id="scene-level3-dialogue" class="scene dialogue-scene">
         <div class="location-tag">場景：歷史的真相拼湊完成</div>
         <div class="custom-character-anna" style="background-image: url('anna_2.png');"></div>
